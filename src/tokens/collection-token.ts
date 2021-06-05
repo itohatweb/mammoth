@@ -1,4 +1,4 @@
-import { State, Token, createQueryState } from './token';
+import { State, Token, createQueryState } from "./token.ts";
 
 export class CollectionToken extends Token {
   tokens: Token[];

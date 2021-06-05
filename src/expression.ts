@@ -1,14 +1,7 @@
-import { BooleanQuery, Query, SpecificQuery } from './query';
-import {
-  CollectionToken,
-  GroupToken,
-  ParameterToken,
-  SeparatorToken,
-  StringToken,
-  Token,
-} from './tokens';
+import { BooleanQuery, Query, SpecificQuery } from "./query.ts";
+import { CollectionToken, GroupToken, ParameterToken, SeparatorToken, StringToken, Token } from "./tokens/mod.ts";
 
-import { wrapQuotes } from './naming';
+import { wrapQuotes } from "./naming/mod.ts";
 
 export class Expression<DataType, IsNotNull extends boolean, Name extends string> {
   private _expressionBrand: any;
@@ -25,19 +18,10 @@ export class Expression<DataType, IsNotNull extends boolean, Name extends string
     return this.name;
   }
 
-  constructor(
-    private readonly tokens: Token[],
-    private readonly name: Name,
-    private readonly nameIsAlias = false,
-  ) {}
+  constructor(private readonly tokens: Token[], private readonly name: Name, private readonly nameIsAlias = false) {}
 
   private getDataTypeTokens(value: DataType | Expression<DataType, true, any> | Query<any>) {
-    if (
-      value &&
-      typeof value === `object` &&
-      'toTokens' in value &&
-      typeof value.toTokens === `function`
-    ) {
+    if (value && typeof value === `object` && "toTokens" in value && typeof value.toTokens === `function`) {
       if (value instanceof Query) {
         return [new GroupToken(value.toTokens())];
       }
@@ -67,36 +51,20 @@ export class Expression<DataType, IsNotNull extends boolean, Name extends string
   //     > = (() => {
   //   //
   // }) as any;
-  or<Q extends Query<any>>(
-    expression: Expression<boolean, any, any> | BooleanQuery<Q>,
-  ): DefaultExpression<boolean> {
+  or<Q extends Query<any>>(expression: Expression<boolean, any, any> | BooleanQuery<Q>): DefaultExpression<boolean> {
     return new DefaultExpression([...this.tokens, new StringToken(`OR`), this.toGroup(expression)]);
   }
 
-  and<Q extends Query<any>>(
-    expression: Expression<boolean, any, any> | BooleanQuery<Q>,
-  ): DefaultExpression<boolean> {
-    return new DefaultExpression([
-      ...this.tokens,
-      new StringToken(`AND`),
-      this.toGroup(expression),
-    ]);
+  and<Q extends Query<any>>(expression: Expression<boolean, any, any> | BooleanQuery<Q>): DefaultExpression<boolean> {
+    return new DefaultExpression([...this.tokens, new StringToken(`AND`), this.toGroup(expression)]);
   }
 
   andNotExists(expression: Expression<any, any, any> | Query<any>): DefaultExpression<boolean> {
-    return new DefaultExpression([
-      ...this.tokens,
-      new StringToken(`AND NOT EXISTS`),
-      this.toGroup(expression),
-    ]);
+    return new DefaultExpression([...this.tokens, new StringToken(`AND NOT EXISTS`), this.toGroup(expression)]);
   }
 
   andExists(expression: Expression<any, any, any> | Query<any>): DefaultExpression<boolean> {
-    return new DefaultExpression([
-      ...this.tokens,
-      new StringToken(`AND EXISTS`),
-      this.toGroup(expression),
-    ]);
+    return new DefaultExpression([...this.tokens, new StringToken(`AND EXISTS`), this.toGroup(expression)]);
   }
 
   as<AliasName extends string>(name: AliasName): Expression<DataType, IsNotNull, AliasName> {
@@ -132,109 +100,63 @@ export class Expression<DataType, IsNotNull extends boolean, Name extends string
   }
 
   in<Q extends Query<any>>(
-    array: DataType[] | Expression<DataType, IsNotNull, any> | SpecificQuery<DataType, Q>,
+    array: DataType[] | Expression<DataType, IsNotNull, any> | SpecificQuery<DataType, Q>
   ): DefaultExpression<boolean> {
-    if (array && ('toTokens' in array || array instanceof Query)) {
-      return new DefaultExpression([
-        ...this.tokens,
-        new StringToken(`IN`),
-        new GroupToken(array.toTokens()),
-      ]);
+    if (array && ("toTokens" in array || array instanceof Query)) {
+      return new DefaultExpression([...this.tokens, new StringToken(`IN`), new GroupToken(array.toTokens())]);
     } else {
       return new DefaultExpression([
         ...this.tokens,
         new StringToken(`IN`),
         new GroupToken([
           new SeparatorToken(
-            ',',
-            array.map((item) => new ParameterToken(item)),
+            ",",
+            array.map((item) => new ParameterToken(item))
           ),
         ]),
       ]);
     }
   }
 
-  notIn(
-    array: DataType[] | Expression<DataType, IsNotNull, any> | Query<any>,
-  ): DefaultExpression<boolean> {
-    if (array && ('toTokens' in array || array instanceof Query)) {
-      return new DefaultExpression([
-        ...this.tokens,
-        new StringToken(`NOT IN`),
-        new GroupToken(array.toTokens()),
-      ]);
+  notIn(array: DataType[] | Expression<DataType, IsNotNull, any> | Query<any>): DefaultExpression<boolean> {
+    if (array && ("toTokens" in array || array instanceof Query)) {
+      return new DefaultExpression([...this.tokens, new StringToken(`NOT IN`), new GroupToken(array.toTokens())]);
     } else {
       return new DefaultExpression([
         ...this.tokens,
         new StringToken(`NOT IN`),
         new GroupToken([
           new SeparatorToken(
-            ',',
-            array.map((item) => new ParameterToken(item)),
+            ",",
+            array.map((item) => new ParameterToken(item))
           ),
         ]),
       ]);
     }
   }
 
-  plus(
-    value: DataType | Expression<DataType, IsNotNull, any>,
-  ): DefaultExpression<DataType, IsNotNull> {
-    return new DefaultExpression([
-      ...this.tokens,
-      new StringToken(`+`),
-      ...this.getDataTypeTokens(value),
-    ]);
+  plus(value: DataType | Expression<DataType, IsNotNull, any>): DefaultExpression<DataType, IsNotNull> {
+    return new DefaultExpression([...this.tokens, new StringToken(`+`), ...this.getDataTypeTokens(value)]);
   }
 
-  minus(
-    value: DataType | Expression<DataType, IsNotNull, any>,
-  ): DefaultExpression<DataType, IsNotNull> {
-    return new DefaultExpression([
-      ...this.tokens,
-      new StringToken(`-`),
-      ...this.getDataTypeTokens(value),
-    ]);
+  minus(value: DataType | Expression<DataType, IsNotNull, any>): DefaultExpression<DataType, IsNotNull> {
+    return new DefaultExpression([...this.tokens, new StringToken(`-`), ...this.getDataTypeTokens(value)]);
   }
 
-  multiply(
-    value: DataType | Expression<DataType, IsNotNull, any>,
-  ): DefaultExpression<DataType, IsNotNull> {
-    return new DefaultExpression([
-      ...this.tokens,
-      new StringToken(`*`),
-      ...this.getDataTypeTokens(value),
-    ]);
+  multiply(value: DataType | Expression<DataType, IsNotNull, any>): DefaultExpression<DataType, IsNotNull> {
+    return new DefaultExpression([...this.tokens, new StringToken(`*`), ...this.getDataTypeTokens(value)]);
   }
 
-  divide(
-    value: DataType | Expression<DataType, IsNotNull, any>,
-  ): DefaultExpression<DataType, IsNotNull> {
-    return new DefaultExpression([
-      ...this.tokens,
-      new StringToken(`/`),
-      ...this.getDataTypeTokens(value),
-    ]);
+  divide(value: DataType | Expression<DataType, IsNotNull, any>): DefaultExpression<DataType, IsNotNull> {
+    return new DefaultExpression([...this.tokens, new StringToken(`/`), ...this.getDataTypeTokens(value)]);
   }
 
-  modulo(
-    value: DataType | Expression<DataType, IsNotNull, any>,
-  ): DefaultExpression<DataType, IsNotNull> {
-    return new DefaultExpression([
-      ...this.tokens,
-      new StringToken(`%`),
-      ...this.getDataTypeTokens(value),
-    ]);
+  modulo(value: DataType | Expression<DataType, IsNotNull, any>): DefaultExpression<DataType, IsNotNull> {
+    return new DefaultExpression([...this.tokens, new StringToken(`%`), ...this.getDataTypeTokens(value)]);
   }
 
-  concat(
-    value: DataType | Expression<DataType, IsNotNull, any>,
-  ): DefaultExpression<DataType, IsNotNull> {
-    return new DefaultExpression([
-      ...this.tokens,
-      new StringToken(`||`),
-      ...this.getDataTypeTokens(value),
-    ]);
+  concat(value: DataType | Expression<DataType, IsNotNull, any>): DefaultExpression<DataType, IsNotNull> {
+    return new DefaultExpression([...this.tokens, new StringToken(`||`), ...this.getDataTypeTokens(value)]);
   }
 
   between(a: DataType, b: DataType): DefaultExpression<boolean> {
@@ -258,95 +180,55 @@ export class Expression<DataType, IsNotNull extends boolean, Name extends string
   }
 
   isDistinctFrom(a: DataType): DefaultExpression<boolean> {
-    return new DefaultExpression([
-      ...this.tokens,
-      new StringToken(`IS DISTINCT FROM`),
-      new ParameterToken(a),
-    ]);
+    return new DefaultExpression([...this.tokens, new StringToken(`IS DISTINCT FROM`), new ParameterToken(a)]);
   }
 
   isNotDistinctFrom(a: DataType): DefaultExpression<boolean> {
-    return new DefaultExpression([
-      ...this.tokens,
-      new StringToken(`IS NOT DISTINCT FROM`),
-      new ParameterToken(a),
-    ]);
+    return new DefaultExpression([...this.tokens, new StringToken(`IS NOT DISTINCT FROM`), new ParameterToken(a)]);
   }
 
   like(value: DataType): DefaultExpression<boolean> {
-    return new DefaultExpression([
-      ...this.tokens,
-      new StringToken(`LIKE`),
-      new ParameterToken(value),
-    ]);
+    return new DefaultExpression([...this.tokens, new StringToken(`LIKE`), new ParameterToken(value)]);
   }
 
   ilike(value: DataType): DefaultExpression<boolean> {
-    return new DefaultExpression([
-      ...this.tokens,
-      new StringToken(`ILIKE`),
-      new ParameterToken(value),
-    ]);
+    return new DefaultExpression([...this.tokens, new StringToken(`ILIKE`), new ParameterToken(value)]);
   }
 
   eq<Q extends Query<any>>(
-    value: DataType | Expression<DataType, boolean, any> | SpecificQuery<DataType, Q>,
+    value: DataType | Expression<DataType, boolean, any> | SpecificQuery<DataType, Q>
   ): DefaultExpression<boolean> {
-    return new DefaultExpression([
-      ...this.tokens,
-      new StringToken(`=`),
-      ...this.getDataTypeTokens(value),
-    ]);
+    return new DefaultExpression([...this.tokens, new StringToken(`=`), ...this.getDataTypeTokens(value)]);
   }
 
   ne<Q extends Query<any>>(
-    value: DataType | Expression<DataType, boolean, any> | SpecificQuery<DataType, Q>,
+    value: DataType | Expression<DataType, boolean, any> | SpecificQuery<DataType, Q>
   ): DefaultExpression<boolean> {
-    return new DefaultExpression([
-      ...this.tokens,
-      new StringToken(`<>`),
-      ...this.getDataTypeTokens(value),
-    ]);
+    return new DefaultExpression([...this.tokens, new StringToken(`<>`), ...this.getDataTypeTokens(value)]);
   }
 
   gt<Q extends Query<any>>(
-    value: DataType | Expression<DataType, boolean, any> | SpecificQuery<DataType, Q>,
+    value: DataType | Expression<DataType, boolean, any> | SpecificQuery<DataType, Q>
   ): DefaultExpression<boolean> {
-    return new DefaultExpression([
-      ...this.tokens,
-      new StringToken(`>`),
-      ...this.getDataTypeTokens(value),
-    ]);
+    return new DefaultExpression([...this.tokens, new StringToken(`>`), ...this.getDataTypeTokens(value)]);
   }
 
   gte<Q extends Query<any>>(
-    value: DataType | Expression<DataType, boolean, any> | SpecificQuery<DataType, Q>,
+    value: DataType | Expression<DataType, boolean, any> | SpecificQuery<DataType, Q>
   ): DefaultExpression<boolean> {
-    return new DefaultExpression([
-      ...this.tokens,
-      new StringToken(`>=`),
-      ...this.getDataTypeTokens(value),
-    ]);
+    return new DefaultExpression([...this.tokens, new StringToken(`>=`), ...this.getDataTypeTokens(value)]);
   }
 
   lt<Q extends Query<any>>(
-    value: DataType | Expression<DataType, boolean, any> | SpecificQuery<DataType, Q>,
+    value: DataType | Expression<DataType, boolean, any> | SpecificQuery<DataType, Q>
   ): DefaultExpression<boolean> {
-    return new DefaultExpression([
-      ...this.tokens,
-      new StringToken(`<`),
-      ...this.getDataTypeTokens(value),
-    ]);
+    return new DefaultExpression([...this.tokens, new StringToken(`<`), ...this.getDataTypeTokens(value)]);
   }
 
   lte<Q extends Query<any>>(
-    value: DataType | Expression<DataType, boolean, any> | SpecificQuery<DataType, Q>,
+    value: DataType | Expression<DataType, boolean, any> | SpecificQuery<DataType, Q>
   ): DefaultExpression<boolean> {
-    return new DefaultExpression([
-      ...this.tokens,
-      new StringToken(`<=`),
-      ...this.getDataTypeTokens(value),
-    ]);
+    return new DefaultExpression([...this.tokens, new StringToken(`<=`), ...this.getDataTypeTokens(value)]);
   }
 
   orderBy(...expressions: Expression<any, any, any>[]): DefaultExpression<DataType, IsNotNull> {
@@ -354,8 +236,8 @@ export class Expression<DataType, IsNotNull extends boolean, Name extends string
       ...this.tokens,
       new StringToken(`ORDER BY`),
       new SeparatorToken(
-        ',',
-        expressions.map((expression) => new CollectionToken(expression.toTokens())),
+        ",",
+        expressions.map((expression) => new CollectionToken(expression.toTokens()))
       ),
     ]);
   }
@@ -375,9 +257,9 @@ export class Expression<DataType, IsNotNull extends boolean, Name extends string
 export class DefaultExpression<DataType, IsNotNull extends boolean = true> extends Expression<
   DataType,
   IsNotNull,
-  '?column?'
+  "?column?"
 > {
   constructor(tokens: Token[]) {
-    super(tokens, '?column?');
+    super(tokens, "?column?");
   }
 }

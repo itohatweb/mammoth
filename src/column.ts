@@ -1,8 +1,8 @@
-import { GroupToken, ParameterToken, SeparatorToken, StringToken, Token } from './tokens';
-import { toSnakeCase, wrapQuotes } from './naming';
+import { GroupToken, ParameterToken, SeparatorToken, StringToken, Token } from "./tokens/mod.ts";
+import { toSnakeCase, wrapQuotes } from "./naming/mod.ts";
 
-import { Expression } from './expression';
-import { TableDefinition } from './table';
+import { Expression } from "./expression.ts";
+import { TableDefinition } from "./table.ts";
 
 export interface ColumnDefinitionFormat {
   dataType: string;
@@ -17,11 +17,7 @@ export interface ColumnDefinitionFormat {
   enumValues?: string[];
 }
 
-export interface ColumnDefinition<
-  DataType,
-  IsNotNull extends boolean = false,
-  HasDefault extends boolean = false
-> {
+export interface ColumnDefinition<DataType, IsNotNull extends boolean = false, HasDefault extends boolean = false> {
   notNull(): ColumnDefinition<DataType, true, HasDefault>;
   primaryKey(): ColumnDefinition<DataType, true, HasDefault>;
   // In most cases a default clause means you do not need to provide any value during insert. In
@@ -30,7 +26,7 @@ export interface ColumnDefinition<
   // this is not neccesary in most of the cases we just assume a default expression will always set
   // a value. You can opt out of this by setting `IsAlwaysSettingAValue` to false.
   default<IsAlwaysSettingAValue extends boolean = true>(
-    expression: string,
+    expression: string
   ): ColumnDefinition<DataType, IsNotNull, IsAlwaysSettingAValue>;
   check(expression: string): ColumnDefinition<DataType, IsNotNull, HasDefault>;
   unique(): ColumnDefinition<DataType, IsNotNull, HasDefault>;
@@ -39,7 +35,7 @@ export interface ColumnDefinition<
     ColumnName extends T extends TableDefinition<infer Columns> ? keyof Columns : never
   >(
     table: T,
-    columnName: ColumnName,
+    columnName: ColumnName
   ): ColumnDefinition<DataType, IsNotNull, HasDefault>;
   referencesSelf(columnName: string): ColumnDefinition<DataType, IsNotNull, HasDefault>;
 
@@ -47,13 +43,9 @@ export interface ColumnDefinition<
   getDefinition(): ColumnDefinitionFormat;
 }
 
-export const makeColumnDefinition = <
-  DataType,
-  IsNotNull extends boolean = false,
-  HasDefault extends boolean = false
->(
+export const makeColumnDefinition = <DataType, IsNotNull extends boolean = false, HasDefault extends boolean = false>(
   dataType: string,
-  enumValues?: string[],
+  enumValues?: string[]
 ): ColumnDefinition<DataType, IsNotNull, HasDefault> => {
   let isNotNull = false;
   let isPrimaryKey = false;
@@ -158,30 +150,22 @@ export class Column<
   constructor(
     private readonly columnName: Name,
     private readonly tableName: TableName,
-    private readonly originalColumnName: string | undefined,
+    private readonly originalColumnName: string | undefined
   ) {
     super(
       originalColumnName
         ? [
             new StringToken(
-              `${wrapQuotes((tableName as unknown) as string)}.${wrapQuotes(
-                toSnakeCase(originalColumnName),
-              )}`,
+              `${wrapQuotes((tableName as unknown) as string)}.${wrapQuotes(toSnakeCase(originalColumnName))}`
             ),
           ]
-        : [
-            new StringToken(
-              `${wrapQuotes((tableName as unknown) as string)}.${wrapQuotes(
-                toSnakeCase(columnName),
-              )}`,
-            ),
-          ],
-      columnName as any,
+        : [new StringToken(`${wrapQuotes((tableName as unknown) as string)}.${wrapQuotes(toSnakeCase(columnName))}`)],
+      columnName as any
     );
   }
 
   as<AliasName extends string>(
-    alias: AliasName,
+    alias: AliasName
   ): Column<AliasName, TableName, DataType, IsNotNull, HasDefault, JoinType> {
     return new Column(alias, this.tableName, (this.columnName as unknown) as string);
   }
@@ -190,9 +174,7 @@ export class Column<
   toTokens(includeAlias?: boolean): Token[] {
     const snakeCaseColumnName = toSnakeCase((this.columnName as unknown) as string);
     const toStringTokens = (tableName: TableName, columnName: string, alias?: string) => {
-      const initialToken = new StringToken(
-        `${wrapQuotes((tableName as unknown) as string)}.${wrapQuotes(columnName)}`,
-      );
+      const initialToken = new StringToken(`${wrapQuotes((tableName as unknown) as string)}.${wrapQuotes(columnName)}`);
 
       if (!alias) {
         return [initialToken];

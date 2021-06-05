@@ -1,14 +1,14 @@
-import { QueryExecutorFn, ResultType } from './types';
-import { StringToken, Token, createQueryState } from './tokens';
+import { QueryExecutorFn, ResultType } from "./types.ts";
+import { StringToken, Token, createQueryState } from "./tokens/mod.ts";
 
-import { Query } from './query';
-import { Table } from './TableType';
-import { TableDefinition } from './table';
+import { Query } from "./query.ts";
+import { Table } from "./TableType.ts";
+import { TableDefinition } from "./table.ts";
 
 export const makeTruncate = (queryExecutor: QueryExecutorFn) => <T extends Table<any, any>>(
-  table: T,
+  table: T
 ): T extends TableDefinition<any> ? never : TruncateQuery<T> => {
-  return new TruncateQuery<T>(queryExecutor, table, 'AFFECTED_COUNT', [
+  return new TruncateQuery<T>(queryExecutor, table, "AFFECTED_COUNT", [
     new StringToken(`TRUNCATE`),
     new StringToken((table as Table<any, any>).getName()),
   ]) as any;
@@ -23,14 +23,14 @@ export class TruncateQuery<
     private readonly queryExecutor: QueryExecutorFn,
     private readonly table: T,
     private readonly resultType: ResultType,
-    private readonly tokens: Token[],
+    private readonly tokens: Token[]
   ) {
     super();
   }
 
   then<Result1, Result2 = never>(
     onFulfilled?: ((value: number) => Result1 | PromiseLike<Result1>) | undefined | null,
-    onRejected?: ((reason: any) => Result2 | PromiseLike<Result2>) | undefined | null,
+    onRejected?: ((reason: any) => Result2 | PromiseLike<Result2>) | undefined | null
   ): Promise<Result1 | Result2> {
     const queryState = createQueryState(this.tokens);
 
@@ -48,15 +48,15 @@ export class TruncateQuery<
   }
 
   cascade<T extends Table<any, any>>() {
-    return this.newTruncateQuery([...this.tokens, new StringToken('CASCADE')]);
+    return this.newTruncateQuery([...this.tokens, new StringToken("CASCADE")]);
   }
 
   restrict<T extends Table<any, any>>() {
-    return this.newTruncateQuery([...this.tokens, new StringToken('RESTRICT')]);
+    return this.newTruncateQuery([...this.tokens, new StringToken("RESTRICT")]);
   }
 
   private newTruncateQuery(tokens: Token[]): TruncateQuery<any> {
-    return new TruncateQuery(this.queryExecutor, this.table, 'AFFECTED_COUNT', tokens);
+    return new TruncateQuery(this.queryExecutor, this.table, "AFFECTED_COUNT", tokens);
   }
 
   getReturningKeys(): string[] {

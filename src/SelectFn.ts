@@ -1,8 +1,8 @@
-import { Column, ColumnSet } from './column';
+import { Column, ColumnSet } from './column.ts';
 
-import { Expression } from './expression';
-import { SelectQuery } from './select';
-import { Star } from './sql-functions';
+import { Expression } from './expression.ts';
+import { SelectQuery } from './select.ts';
+import { Star } from './sql-functions.ts';
 
 export type GetSelectableName<S> = S extends Column<infer A2, string, any, boolean, boolean, any>
   ? A2

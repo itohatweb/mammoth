@@ -1,11 +1,11 @@
-import { CollectionToken, GroupToken, SeparatorToken, StringToken, Token } from './tokens';
-import { GetDataType, QueryExecutorFn } from './types';
+import { CollectionToken, GroupToken, SeparatorToken, StringToken, Token } from "./tokens/mod.ts";
+import { GetDataType, QueryExecutorFn } from "./types.ts";
 
-import { Expression } from './expression';
-import { Query } from './query';
-import { ResultSet } from './result-set';
-import { SelectQuery } from './select';
-import { wrapQuotes } from './naming';
+import { Expression } from "./expression.ts";
+import { Query } from "./query.ts";
+import { ResultSet } from "./result-set.ts";
+import { SelectQuery } from "./select.ts";
+import { wrapQuotes } from "./naming/mod.ts";
 
 export type FromItem<Q> = Q extends Query<any>
   ? FromItemQuery<Q>
@@ -27,7 +27,7 @@ export interface WithFn {
   <N1 extends string, W1 extends QueryFn<never>, Q extends Query<any>>(
     name1: N1,
     with1: W1,
-    callback: (args: { [K in N1]: FromItem<W1> }) => Q,
+    callback: (args: { [K in N1]: FromItem<W1> }) => Q
   ): Q;
   <
     N1 extends string,
@@ -40,7 +40,7 @@ export interface WithFn {
     with1: W1,
     name2: N2,
     with2: W2,
-    callback: (args: { [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> }) => Q,
+    callback: (args: { [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> }) => Q
   ): Q;
   <
     N1 extends string,
@@ -57,9 +57,7 @@ export interface WithFn {
     with2: W2,
     name3: N3,
     with3: W3,
-    callback: (
-      args: { [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> } & { [K in N3]: FromItem<W3> },
-    ) => Q,
+    callback: (args: { [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> } & { [K in N3]: FromItem<W3> }) => Q
   ): Q;
   <
     N1 extends string,
@@ -69,9 +67,7 @@ export interface WithFn {
     N3 extends string,
     W3 extends QueryFn<{ [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> }>,
     N4 extends string,
-    W4 extends QueryFn<
-      { [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> } & { [K in N3]: FromItem<W3> }
-    >,
+    W4 extends QueryFn<{ [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> } & { [K in N3]: FromItem<W3> }>,
     Q extends Query<any>
   >(
     name1: N1,
@@ -86,8 +82,8 @@ export interface WithFn {
       args: { [K in N1]: FromItem<W1> } &
         { [K in N2]: FromItem<W2> } &
         { [K in N3]: FromItem<W3> } &
-        { [K in N4]: FromItem<W4> },
-    ) => Q,
+        { [K in N4]: FromItem<W4> }
+    ) => Q
   ): Q;
   <
     N1 extends string,
@@ -97,9 +93,7 @@ export interface WithFn {
     N3 extends string,
     W3 extends QueryFn<{ [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> }>,
     N4 extends string,
-    W4 extends QueryFn<
-      { [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> } & { [K in N3]: FromItem<W3> }
-    >,
+    W4 extends QueryFn<{ [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> } & { [K in N3]: FromItem<W3> }>,
     N5 extends string,
     W5 extends QueryFn<
       { [K in N1]: FromItem<W1> } &
@@ -124,8 +118,8 @@ export interface WithFn {
         { [K in N2]: FromItem<W2> } &
         { [K in N3]: FromItem<W3> } &
         { [K in N4]: FromItem<W4> } &
-        { [K in N5]: FromItem<W5> },
-    ) => Q,
+        { [K in N5]: FromItem<W5> }
+    ) => Q
   ): Q;
   <
     N1 extends string,
@@ -135,9 +129,7 @@ export interface WithFn {
     N3 extends string,
     W3 extends QueryFn<{ [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> }>,
     N4 extends string,
-    W4 extends QueryFn<
-      { [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> } & { [K in N3]: FromItem<W3> }
-    >,
+    W4 extends QueryFn<{ [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> } & { [K in N3]: FromItem<W3> }>,
     N5 extends string,
     W5 extends QueryFn<
       { [K in N1]: FromItem<W1> } &
@@ -173,8 +165,8 @@ export interface WithFn {
         { [K in N3]: FromItem<W3> } &
         { [K in N4]: FromItem<W4> } &
         { [K in N5]: FromItem<W5> } &
-        { [K in N6]: FromItem<W6> },
-    ) => Q,
+        { [K in N6]: FromItem<W6> }
+    ) => Q
   ): Q;
   <
     N1 extends string,
@@ -184,9 +176,7 @@ export interface WithFn {
     N3 extends string,
     W3 extends QueryFn<{ [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> }>,
     N4 extends string,
-    W4 extends QueryFn<
-      { [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> } & { [K in N3]: FromItem<W3> }
-    >,
+    W4 extends QueryFn<{ [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> } & { [K in N3]: FromItem<W3> }>,
     N5 extends string,
     W5 extends QueryFn<
       { [K in N1]: FromItem<W1> } &
@@ -234,8 +224,8 @@ export interface WithFn {
         { [K in N4]: FromItem<W4> } &
         { [K in N5]: FromItem<W5> } &
         { [K in N6]: FromItem<W6> } &
-        { [K in N7]: FromItem<W7> },
-    ) => Q,
+        { [K in N7]: FromItem<W7> }
+    ) => Q
   ): Q;
   <
     N1 extends string,
@@ -245,9 +235,7 @@ export interface WithFn {
     N3 extends string,
     W3 extends QueryFn<{ [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> }>,
     N4 extends string,
-    W4 extends QueryFn<
-      { [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> } & { [K in N3]: FromItem<W3> }
-    >,
+    W4 extends QueryFn<{ [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> } & { [K in N3]: FromItem<W3> }>,
     N5 extends string,
     W5 extends QueryFn<
       { [K in N1]: FromItem<W1> } &
@@ -308,8 +296,8 @@ export interface WithFn {
         { [K in N5]: FromItem<W5> } &
         { [K in N6]: FromItem<W6> } &
         { [K in N7]: FromItem<W7> } &
-        { [K in N8]: FromItem<W8> },
-    ) => Q,
+        { [K in N8]: FromItem<W8> }
+    ) => Q
   ): Q;
   <
     N1 extends string,
@@ -319,9 +307,7 @@ export interface WithFn {
     N3 extends string,
     W3 extends QueryFn<{ [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> }>,
     N4 extends string,
-    W4 extends QueryFn<
-      { [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> } & { [K in N3]: FromItem<W3> }
-    >,
+    W4 extends QueryFn<{ [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> } & { [K in N3]: FromItem<W3> }>,
     N5 extends string,
     W5 extends QueryFn<
       { [K in N1]: FromItem<W1> } &
@@ -396,8 +382,8 @@ export interface WithFn {
         { [K in N6]: FromItem<W6> } &
         { [K in N7]: FromItem<W7> } &
         { [K in N8]: FromItem<W8> } &
-        { [K in N9]: FromItem<W9> },
-    ) => Q,
+        { [K in N9]: FromItem<W9> }
+    ) => Q
   ): Q;
   <
     N1 extends string,
@@ -407,9 +393,7 @@ export interface WithFn {
     N3 extends string,
     W3 extends QueryFn<{ [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> }>,
     N4 extends string,
-    W4 extends QueryFn<
-      { [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> } & { [K in N3]: FromItem<W3> }
-    >,
+    W4 extends QueryFn<{ [K in N1]: FromItem<W1> } & { [K in N2]: FromItem<W2> } & { [K in N3]: FromItem<W3> }>,
     N5 extends string,
     W5 extends QueryFn<
       { [K in N1]: FromItem<W1> } &
@@ -499,8 +483,8 @@ export interface WithFn {
         { [K in N7]: FromItem<W7> } &
         { [K in N8]: FromItem<W8> } &
         { [K in N9]: FromItem<W9> } &
-        { [K in N10]: FromItem<W10> },
-    ) => Q,
+        { [K in N10]: FromItem<W10> }
+    ) => Q
   ): Q;
 }
 
@@ -518,10 +502,7 @@ export const makeWith = (queryExecutor: QueryExecutorFn): WithFn => (...args: an
   const createFromItem = (name: string, query: Query<any>) => {
     const fromItem = {
       ...query.getReturningKeys().reduce((fromItem, key) => {
-        fromItem[key] = new Expression(
-          [new StringToken(`${wrapQuotes(name)}.${wrapQuotes(key)}`)],
-          key,
-        );
+        fromItem[key] = new Expression([new StringToken(`${wrapQuotes(name)}.${wrapQuotes(key)}`)], key);
         return fromItem;
       }, {} as any),
 
@@ -548,7 +529,7 @@ export const makeWith = (queryExecutor: QueryExecutorFn): WithFn => (...args: an
         new StringToken(wrapQuotes(name)),
         new StringToken(`AS`),
         new GroupToken(withQuery.toTokens()),
-      ]),
+      ])
     );
 
     queries[name] = createFromItem(name, withQuery);

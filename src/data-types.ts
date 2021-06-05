@@ -1,4 +1,4 @@
-import { ColumnDefinition, makeColumnDefinition } from './column';
+import { ColumnDefinition, makeColumnDefinition } from "./column.ts";
 
 const variableLength = (string: string, ...n: (number | undefined)[]) =>
   n.length > 0 ? `${string}(${n.join(`, `)})` : string;
@@ -70,7 +70,7 @@ export function box<T>(): ColumnDefinition<T>;
 export function box() {
   return makeDataType(`box`);
 }
-export function bytea(): ColumnDefinition<Buffer>;
+export function bytea(): ColumnDefinition<Blob>;
 export function bytea<T>(): ColumnDefinition<T>;
 export function bytea() {
   return makeDataType(`bytea`);
@@ -344,10 +344,7 @@ export function xml() {
 }
 
 // enum is a reserved keyword unfortunately
-export function enumType<EnumValue>(
-  name: string,
-  values: readonly EnumValue[],
-): ColumnDefinition<EnumValue> {
+export function enumType<EnumValue>(name: string, values: readonly EnumValue[]): ColumnDefinition<EnumValue> {
   return makeDataType<EnumValue>(name, values as any);
 }
 
@@ -361,5 +358,5 @@ export function array2d<T>(dataType: ColumnDefinition<T>) {
 
 function internalArray<T>(dataType: ColumnDefinition<T>, dimensions: number) {
   const definition = dataType.getDefinition();
-  return makeDataType<T>(definition.dataType + '[]'.repeat(dimensions));
+  return makeDataType<T>(definition.dataType + "[]".repeat(dimensions));
 }

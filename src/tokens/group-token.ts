@@ -1,11 +1,11 @@
-import { State, Token, createQueryState } from './token';
+import { State, Token, createQueryState } from "./token.ts";
 
 export class GroupToken extends Token {
   tokens: Token[];
   open: string;
   close: string;
 
-  constructor(tokens: Token[], open = '(', close = ')') {
+  constructor(tokens: Token[], open = "(", close = ")") {
     super();
 
     this.open = open;
@@ -20,9 +20,7 @@ export class GroupToken extends Token {
     const index = tokensState.text.length - 1;
     if (index >= 0) {
       tokensState.text[0] = `${this.open}${tokensState.text[0]}`;
-      tokensState.text[tokensState.text.length - 1] = `${
-        tokensState.text[tokensState.text.length - 1]
-      }${this.close}`;
+      tokensState.text[tokensState.text.length - 1] = `${tokensState.text[tokensState.text.length - 1]}${this.close}`;
     } else {
       // TODO: If there are no items. Shuold we still add the () characters? Or a fallback?
     }

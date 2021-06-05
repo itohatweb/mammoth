@@ -1,14 +1,10 @@
-import { Column, ColumnDefinition } from './column';
+import { Column, ColumnDefinition } from "./column.ts";
 
-import { Table } from './TableType';
+import { Table } from "./TableType.ts";
 
 export type TableRow<T> = T extends TableDefinition<infer Columns>
   ? {
-      [K in keyof Columns]: Columns[K] extends ColumnDefinition<
-        infer DataType,
-        infer IsNotNull,
-        boolean
-      >
+      [K in keyof Columns]: Columns[K] extends ColumnDefinition<infer DataType, infer IsNotNull, boolean>
         ? IsNotNull extends true
           ? DataType
           : DataType | undefined
@@ -26,11 +22,9 @@ export const makeTable = <
 >(
   tableName: TableName,
   originalTableName: string | undefined,
-  tableDefinition: TableDefinition,
+  tableDefinition: TableDefinition
 ) => {
-  const columnNames = Object.keys(
-    (tableDefinition as unknown) as object,
-  ) as (keyof TableDefinition)[];
+  const columnNames = Object.keys((tableDefinition as unknown) as object) as (keyof TableDefinition)[];
 
   const columns = columnNames.reduce(
     (map, columnName) => {
@@ -45,20 +39,14 @@ export const makeTable = <
           ? Column<
               K,
               TableName,
-              TableDefinition[K] extends ColumnDefinition<infer DataType, any, any>
-                ? DataType
-                : never,
-              TableDefinition[K] extends ColumnDefinition<any, infer IsNotNull, any>
-                ? IsNotNull
-                : never,
-              TableDefinition[K] extends ColumnDefinition<any, any, infer HasDefault>
-                ? HasDefault
-                : never,
+              TableDefinition[K] extends ColumnDefinition<infer DataType, any, any> ? DataType : never,
+              TableDefinition[K] extends ColumnDefinition<any, infer IsNotNull, any> ? IsNotNull : never,
+              TableDefinition[K] extends ColumnDefinition<any, any, infer HasDefault> ? HasDefault : never,
               undefined
             >
           : never;
       }
-    >,
+    >
   );
 
   const table = {
@@ -77,7 +65,7 @@ export const makeTable = <
 };
 
 export const defineTable = <Columns extends { [column: string]: ColumnDefinition<any, any, any> }>(
-  tableDefinition: Columns,
+  tableDefinition: Columns
 ): TableDefinition<Columns> => {
   return tableDefinition as any;
 };

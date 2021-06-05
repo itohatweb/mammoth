@@ -1,17 +1,17 @@
-import { Token } from './token';
+import { Token } from "./token.ts";
 
 export class ParameterToken extends Token {
-	parameter: any;
+  parameter: any;
 
-	constructor(parameter: any) {
-		super();
+  constructor(parameter: any) {
+    super();
 
-		this.parameter = parameter;
-	}
+    this.parameter = parameter;
+  }
 
-	reduce(state: any, numberOfParameters: number) {
-		state.text.push(`$${numberOfParameters + 1}`);
-		state.parameters.push(this.parameter);
-		return state;
-	}
+  reduce(state: any, numberOfParameters: number) {
+    state.text.push(`$${numberOfParameters + 1}`);
+    state.parameters.push(this.parameter);
+    return state;
+  }
 }

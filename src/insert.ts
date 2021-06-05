@@ -7,19 +7,20 @@ import {
   StringToken,
   Token,
   createQueryState,
-} from './tokens';
-import { GetReturning, PickByValue, QueryExecutorFn, ResultType } from './types';
-import { SelectFn, makeSelect } from './select';
+} from "./tokens/mod.ts";
+import { GetReturning, PickByValue, QueryExecutorFn, ResultType } from "./types.ts";
+import { makeSelect } from "./select.ts";
 
-import { Column } from './column';
-import { DeleteQuery } from './delete';
-import { Expression } from './expression';
-import { Query } from './query';
-import { ResultSet } from './result-set';
-import { Table } from './TableType';
-import { TableDefinition } from './table';
-import { UpdateQuery } from './update';
-import { wrapQuotes } from './naming';
+import { Column } from "./column.ts";
+import { DeleteQuery } from "./delete.ts";
+import { Expression } from "./expression.ts";
+import { Query } from "./query.ts";
+import { ResultSet } from "./result-set.ts";
+import { Table } from "./TableType.ts";
+import { TableDefinition } from "./table.ts";
+import { UpdateQuery } from "./update.ts";
+import { wrapQuotes } from "./naming/mod.ts";
+import { SelectFn } from "./SelectFn.ts";
 
 // https://www.postgresql.org/docs/12/sql-insert.html
 export class InsertQuery<
@@ -39,7 +40,7 @@ export class InsertQuery<
     private readonly returningKeys: string[],
     private readonly table: T,
     private readonly resultType: ResultType,
-    private readonly tokens: Token[],
+    private readonly tokens: Token[]
   ) {
     super();
   }
@@ -47,46 +48,33 @@ export class InsertQuery<
   then<Result1, Result2 = never>(
     onFulfilled?:
       | ((
-          value: Returning extends number
-            ? Returning
-            : ResultSet<InsertQuery<T, Returning>, false>[],
+          value: Returning extends number ? Returning : ResultSet<InsertQuery<T, Returning>, false>[]
         ) => Result1 | PromiseLike<Result1>)
       | undefined
       | null,
-    onRejected?: ((reason: any) => Result2 | PromiseLike<Result2>) | undefined | null,
+    onRejected?: ((reason: any) => Result2 | PromiseLike<Result2>) | undefined | null
   ): Promise<Result1 | Result2> {
     const queryState = createQueryState(this.tokens);
 
     return this.queryExecutor(queryState.text.join(` `), queryState.parameters)
       .then((result) =>
         onFulfilled
-          ? onFulfilled(
-              this.resultType === `AFFECTED_COUNT` ? result.affectedCount : (result.rows as any),
-            )
-          : result,
+          ? onFulfilled(this.resultType === `AFFECTED_COUNT` ? result.affectedCount : (result.rows as any))
+          : result
       )
       .catch(onRejected) as any;
   }
 
-  returning<C1 extends keyof TableColumns>(
-    column1: C1,
-  ): InsertQuery<T, GetReturning<TableColumns, C1>>;
+  returning<C1 extends keyof TableColumns>(column1: C1): InsertQuery<T, GetReturning<TableColumns, C1>>;
   returning<C1 extends keyof TableColumns, C2 extends keyof TableColumns>(
     column1: C1,
-    column2: C2,
+    column2: C2
   ): InsertQuery<T, GetReturning<TableColumns, C1> & GetReturning<TableColumns, C2>>;
-  returning<
-    C1 extends keyof TableColumns,
-    C2 extends keyof TableColumns,
-    C3 extends keyof TableColumns
-  >(
+  returning<C1 extends keyof TableColumns, C2 extends keyof TableColumns, C3 extends keyof TableColumns>(
     column1: C1,
     column2: C2,
-    column3: C3,
-  ): InsertQuery<
-    T,
-    GetReturning<TableColumns, C1> & GetReturning<TableColumns, C2> & GetReturning<TableColumns, C3>
-  >;
+    column3: C3
+  ): InsertQuery<T, GetReturning<TableColumns, C1> & GetReturning<TableColumns, C2> & GetReturning<TableColumns, C3>>;
   returning<
     C1 extends keyof TableColumns,
     C2 extends keyof TableColumns,
@@ -96,7 +84,7 @@ export class InsertQuery<
     column1: C1,
     column2: C2,
     column3: C3,
-    column4: C4,
+    column4: C4
   ): InsertQuery<
     T,
     GetReturning<TableColumns, C1> &
@@ -115,7 +103,7 @@ export class InsertQuery<
     column2: C2,
     column3: C3,
     column4: C4,
-    column5: C5,
+    column5: C5
   ): InsertQuery<
     T,
     GetReturning<TableColumns, C1> &
@@ -137,7 +125,7 @@ export class InsertQuery<
     column3: C3,
     column4: C4,
     column5: C5,
-    column6: C6,
+    column6: C6
   ): InsertQuery<
     T,
     GetReturning<TableColumns, C1> &
@@ -162,7 +150,7 @@ export class InsertQuery<
     column4: C4,
     column5: C5,
     column6: C6,
-    column7: C7,
+    column7: C7
   ): InsertQuery<
     T,
     GetReturning<TableColumns, C1> &
@@ -190,7 +178,7 @@ export class InsertQuery<
     column5: C5,
     column6: C6,
     column7: C7,
-    column8: C8,
+    column8: C8
   ): InsertQuery<
     T,
     GetReturning<TableColumns, C1> &
@@ -221,7 +209,7 @@ export class InsertQuery<
     column6: C6,
     column7: C7,
     column8: C8,
-    column9: C9,
+    column9: C9
   ): InsertQuery<
     T,
     GetReturning<TableColumns, C1> &
@@ -255,7 +243,7 @@ export class InsertQuery<
     column7: C7,
     column8: C8,
     column9: C9,
-    column10: C10,
+    column10: C10
   ): InsertQuery<
     T,
     GetReturning<TableColumns, C1> &
@@ -270,7 +258,7 @@ export class InsertQuery<
       GetReturning<TableColumns, C10>
   >;
   returning(...columnNames: any[]) {
-    return new InsertQuery(this.queryExecutor, columnNames, this.table, 'ROWS', [
+    return new InsertQuery(this.queryExecutor, columnNames, this.table, "ROWS", [
       ...this.tokens,
       new StringToken(`RETURNING`),
       new SeparatorToken(
@@ -283,7 +271,7 @@ export class InsertQuery<
           } else {
             return new StringToken(column.getSnakeCaseName());
           }
-        }),
+        })
       ),
     ]) as any;
   }
@@ -300,84 +288,53 @@ export class InsertQuery<
     const self = this;
     return {
       doNothing() {
-        return new InsertQuery(
-          self.queryExecutor,
-          self.returningKeys,
-          self.table,
-          self.resultType,
-          [
-            ...self.tokens,
-            new StringToken(`ON CONFLICT ON CONSTRAINT`),
-            new ParameterToken(constraintName),
-            new StringToken(`DO NOTHING`),
-          ],
-        );
+        return new InsertQuery(self.queryExecutor, self.returningKeys, self.table, self.resultType, [
+          ...self.tokens,
+          new StringToken(`ON CONFLICT ON CONSTRAINT`),
+          new ParameterToken(constraintName),
+          new StringToken(`DO NOTHING`),
+        ]);
       },
 
       doUpdateSet(
         values: T extends Table<any, infer Columns>
           ? {
-              [K in keyof Columns]?: Columns[K] extends Column<
-                any,
-                any,
-                infer DataType,
-                infer IsNotNull,
-                any,
-                any
-              >
+              [K in keyof Columns]?: Columns[K] extends Column<any, any, infer DataType, infer IsNotNull, any, any>
                 ? IsNotNull extends true
                   ? DataType | Expression<DataType, IsNotNull, any> | Query<any>
                   : DataType | undefined | Expression<DataType, IsNotNull, any> | Query<any>
                 : never;
             }
-          : never,
+          : never
       ) {
-        return new InsertQuery(
-          self.queryExecutor,
-          self.returningKeys,
-          self.table,
-          self.resultType,
-          [
-            ...self.tokens,
-            new StringToken(`ON CONFLICT ON CONSTRAINT`),
-            new ParameterToken(constraintName),
-            new StringToken(`DO UPDATE SET`),
-            new SeparatorToken(
-              `,`,
-              Object.keys(values).map((columnName) => {
-                const column = (self.table as any)[columnName] as Column<
-                  any,
-                  any,
-                  any,
-                  any,
-                  any,
-                  any
-                >;
-                const value = (values as any)[columnName];
+        return new InsertQuery(self.queryExecutor, self.returningKeys, self.table, self.resultType, [
+          ...self.tokens,
+          new StringToken(`ON CONFLICT ON CONSTRAINT`),
+          new ParameterToken(constraintName),
+          new StringToken(`DO UPDATE SET`),
+          new SeparatorToken(
+            `,`,
+            Object.keys(values).map((columnName) => {
+              const column = (self.table as any)[columnName] as Column<any, any, any, any, any, any>;
+              const value = (values as any)[columnName];
 
-                if (
-                  value &&
-                  typeof value === `object` &&
-                  'toTokens' in value &&
-                  typeof value.toTokens === `function`
-                ) {
-                  return new CollectionToken([
-                    new StringToken(column.getSnakeCaseName()),
-                    new StringToken(`=`),
-                    // TODO: should we add a group here-o?
-                    ...value.toTokens(),
-                  ]);
-                } else {
-                  return new CollectionToken([
-                    new StringToken(column.getSnakeCaseName()),
-                    new StringToken(`=`),
-                    new ParameterToken(value),
-                  ]);
-                }
-              }),
-            ),
-          ],
-        );
+              if (value && typeof value === `object` && "toTokens" in value && typeof value.toTokens === `function`) {
+                return new CollectionToken([
+                  new StringToken(column.getSnakeCaseName()),
+                  new StringToken(`=`),
+                  // TODO: should we add a group here-o?
+                  ...value.toTokens(),
+                ]);
+              } else {
+                return new CollectionToken([
+                  new StringToken(column.getSnakeCaseName()),
+                  new StringToken(`=`),
+                  new ParameterToken(value),
+                ]);
+              }
+            })
+          ),
+        ]);
       },
     };
   }
@@ -388,113 +345,68 @@ export class InsertQuery<
     const self = this;
     return {
       doNothing() {
-        return new InsertQuery(
-          self.queryExecutor,
-          self.returningKeys,
-          self.table,
-          self.resultType,
-          [
-            ...self.tokens,
-            new StringToken(`ON CONFLICT`),
-            columnNames.length > 0
-              ? new GroupToken(
-                  columnNames.map((columnName) => {
-                    const column = (self.table as any)[columnName] as Column<
-                      any,
-                      any,
-                      any,
-                      any,
-                      any,
-                      any
-                    >;
+        return new InsertQuery(self.queryExecutor, self.returningKeys, self.table, self.resultType, [
+          ...self.tokens,
+          new StringToken(`ON CONFLICT`),
+          columnNames.length > 0
+            ? new GroupToken(
+                columnNames.map((columnName) => {
+                  const column = (self.table as any)[columnName] as Column<any, any, any, any, any, any>;
 
-                    return new StringToken(column.getSnakeCaseName());
-                  }),
-                )
-              : new EmptyToken(),
-            new StringToken(`DO NOTHING`),
-          ],
-        );
+                  return new StringToken(column.getSnakeCaseName());
+                })
+              )
+            : new EmptyToken(),
+          new StringToken(`DO NOTHING`),
+        ]);
       },
 
       doUpdateSet(
         values: T extends Table<any, infer Columns>
           ? {
-              [K in keyof Columns]?: Columns[K] extends Column<
-                any,
-                any,
-                infer DataType,
-                infer IsNotNull,
-                any,
-                any
-              >
+              [K in keyof Columns]?: Columns[K] extends Column<any, any, infer DataType, infer IsNotNull, any, any>
                 ? IsNotNull extends true
                   ? DataType | Expression<DataType, IsNotNull, any> | Query<any>
                   : DataType | undefined | Expression<DataType, IsNotNull, any> | Query<any>
                 : never;
             }
-          : never,
+          : never
       ) {
-        return new InsertQuery(
-          self.queryExecutor,
-          self.returningKeys,
-          self.table,
-          self.resultType,
-          [
-            ...self.tokens,
-            new StringToken(`ON CONFLICT`),
-            columnNames.length > 0
-              ? new GroupToken(
-                  columnNames.map((columnName) => {
-                    const column = (self.table as any)[columnName] as Column<
-                      any,
-                      any,
-                      any,
-                      any,
-                      any,
-                      any
-                    >;
-                    return new StringToken(column.getSnakeCaseName());
-                  }),
-                )
-              : new EmptyToken(),
-            new StringToken(`DO UPDATE SET`),
-            new SeparatorToken(
-              `,`,
-              Object.keys(values).map((columnName) => {
-                const column = (self.table as any)[columnName] as Column<
-                  any,
-                  any,
-                  any,
-                  any,
-                  any,
-                  any
-                >;
-                const value = (values as any)[columnName];
+        return new InsertQuery(self.queryExecutor, self.returningKeys, self.table, self.resultType, [
+          ...self.tokens,
+          new StringToken(`ON CONFLICT`),
+          columnNames.length > 0
+            ? new GroupToken(
+                columnNames.map((columnName) => {
+                  const column = (self.table as any)[columnName] as Column<any, any, any, any, any, any>;
+                  return new StringToken(column.getSnakeCaseName());
+                })
+              )
+            : new EmptyToken(),
+          new StringToken(`DO UPDATE SET`),
+          new SeparatorToken(
+            `,`,
+            Object.keys(values).map((columnName) => {
+              const column = (self.table as any)[columnName] as Column<any, any, any, any, any, any>;
+              const value = (values as any)[columnName];
 
-                if (
-                  value &&
-                  typeof value === `object` &&
-                  'toTokens' in value &&
-                  typeof value.toTokens === `function`
-                ) {
-                  return new CollectionToken([
-                    new StringToken(column.getSnakeCaseName()),
-                    new StringToken(`=`),
-                    // TODO: should we add a group here-o?
-                    ...value.toTokens(),
-                  ]);
-                } else {
-                  return new CollectionToken([
-                    new StringToken(column.getSnakeCaseName()),
-                    new StringToken(`=`),
-                    new ParameterToken(value),
-                  ]);
-                }
-              }),
-            ),
-          ],
-        );
+              if (value && typeof value === `object` && "toTokens" in value && typeof value.toTokens === `function`) {
+                return new CollectionToken([
+                  new StringToken(column.getSnakeCaseName()),
+                  new StringToken(`=`),
+                  // TODO: should we add a group here-o?
+                  ...value.toTokens(),
+                ]);
+              } else {
+                return new CollectionToken([
+                  new StringToken(column.getSnakeCaseName()),
+                  new StringToken(`=`),
+                  new ParameterToken(value),
+                ]);
+              }
+            })
+          ),
+        ]);
       },
     };
   }
@@ -511,14 +423,7 @@ export interface InsertIntoResult<
     ? {
         [K in keyof PickByValue<
           {
-            [K in keyof Columns]: Columns[K] extends Column<
-              any,
-              any,
-              any,
-              infer IsNotNull,
-              infer HasDefault,
-              any
-            >
+            [K in keyof Columns]: Columns[K] extends Column<any, any, any, infer IsNotNull, infer HasDefault, any>
               ? HasDefault extends true
                 ? false
                 : IsNotNull
@@ -530,52 +435,34 @@ export interface InsertIntoResult<
         {
           [K in keyof PickByValue<
             {
-              [K in keyof Columns]: Columns[K] extends Column<
-                any,
-                any,
-                any,
-                boolean,
-                infer HasDefault,
-                any
-              >
+              [K in keyof Columns]: Columns[K] extends Column<any, any, any, boolean, infer HasDefault, any>
                 ? HasDefault extends true
                   ? false
                   : false
                 : never;
             },
             false
-          >]?: Columns[K] extends Column<any, any, infer DataType, any, any, any>
-            ? DataType | undefined
-            : never;
+          >]?: Columns[K] extends Column<any, any, infer DataType, any, any, any> ? DataType | undefined : never;
         }
     : never
 > {
   select: SelectFn;
 
-  deleteFrom<DeleteTable extends Table<any, any>>(
-    deleteTable: DeleteTable,
-  ): DeleteQuery<DeleteTable, number>;
+  deleteFrom<DeleteTable extends Table<any, any>>(deleteTable: DeleteTable): DeleteQuery<DeleteTable, number>;
 
   update<UpdateTable extends Table<any, any>>(
-    updateTable: UpdateTable,
+    updateTable: UpdateTable
   ): {
     set(
       values: UpdateTable extends Table<any, infer Columns>
         ? {
-            [K in keyof Columns]?: Columns[K] extends Column<
-              any,
-              any,
-              infer DataType,
-              infer IsNotNull,
-              any,
-              any
-            >
+            [K in keyof Columns]?: Columns[K] extends Column<any, any, infer DataType, infer IsNotNull, any, any>
               ? IsNotNull extends true
                 ? DataType | Expression<DataType, boolean, any>
                 : DataType | undefined | Expression<DataType | undefined, boolean, any>
               : never;
           }
-        : never,
+        : never
     ): UpdateQuery<UpdateTable, number>;
   };
 
@@ -585,20 +472,13 @@ export interface InsertIntoResult<
 
 export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Table<any, any>>(
   table: T,
-  columnNames?: T extends Table<any, infer Columns> ? (keyof Columns)[] : never,
+  columnNames?: T extends Table<any, infer Columns> ? (keyof Columns)[] : never
 ): T extends TableDefinition<any> ? never : InsertIntoResult<T> => {
   type Row = T extends Table<any, infer Columns>
     ? {
         [K in keyof PickByValue<
           {
-            [K in keyof Columns]: Columns[K] extends Column<
-              any,
-              any,
-              any,
-              infer IsNotNull,
-              infer HasDefault,
-              any
-            >
+            [K in keyof Columns]: Columns[K] extends Column<any, any, any, infer IsNotNull, infer HasDefault, any>
               ? HasDefault extends true
                 ? false
                 : IsNotNull
@@ -610,23 +490,14 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
         {
           [K in keyof PickByValue<
             {
-              [K in keyof Columns]: Columns[K] extends Column<
-                any,
-                any,
-                any,
-                infer IsNotNull,
-                infer HasDefault,
-                any
-              >
+              [K in keyof Columns]: Columns[K] extends Column<any, any, any, infer IsNotNull, infer HasDefault, any>
                 ? HasDefault extends true
                   ? false
                   : IsNotNull
                 : never;
             },
             false
-          >]?: Columns[K] extends Column<any, any, infer DataType, any, any, any>
-            ? DataType | undefined
-            : never;
+          >]?: Columns[K] extends Column<any, any, infer DataType, any, any, any> ? DataType | undefined : never;
         }
     : never;
 
@@ -641,34 +512,28 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
             const column = (table as any)[columnName] as Column<any, any, any, any, any, any>;
 
             return new StringToken(column.getSnakeCaseName());
-          }) || [],
+          }) || []
         ),
       ]),
     ]),
 
     deleteFrom<DeleteTable extends Table<any, any>>(deleteTable: DeleteTable) {
-      return new DeleteQuery<DeleteTable, number>(
-        queryExecutor,
-        [],
-        deleteTable,
-        'AFFECTED_COUNT',
-        [
-          new StringToken(`INSERT INTO`),
-          new StringToken((table as Table<any, any>).getName()),
-          new GroupToken([
-            new SeparatorToken(
-              `,`,
-              columnNames!.map((columnName) => {
-                const column = (table as any)[columnName] as Column<any, any, any, any, any, any>;
+      return new DeleteQuery<DeleteTable, number>(queryExecutor, [], deleteTable, "AFFECTED_COUNT", [
+        new StringToken(`INSERT INTO`),
+        new StringToken((table as Table<any, any>).getName()),
+        new GroupToken([
+          new SeparatorToken(
+            `,`,
+            columnNames!.map((columnName) => {
+              const column = (table as any)[columnName] as Column<any, any, any, any, any, any>;
 
-                return new StringToken(column.getSnakeCaseName());
-              }),
-            ),
-          ]),
-          new StringToken(`DELETE FROM`),
-          new StringToken((deleteTable as Table<any, any>).getName()),
-        ],
-      );
+              return new StringToken(column.getSnakeCaseName());
+            })
+          ),
+        ]),
+        new StringToken(`DELETE FROM`),
+        new StringToken((deleteTable as Table<any, any>).getName()),
+      ]);
     },
 
     update<UpdateTable extends Table<any, any>>(updateTable: UpdateTable) {
@@ -676,24 +541,17 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
         set(
           values: UpdateTable extends Table<any, infer Columns>
             ? {
-                [K in keyof Columns]?: Columns[K] extends Column<
-                  any,
-                  any,
-                  infer DataType,
-                  infer IsNotNull,
-                  any,
-                  any
-                >
+                [K in keyof Columns]?: Columns[K] extends Column<any, any, infer DataType, infer IsNotNull, any, any>
                   ? IsNotNull extends true
                     ? DataType | Expression<DataType, boolean, any>
                     : DataType | undefined | Expression<DataType | undefined, boolean, any>
                   : never;
               }
-            : never,
+            : never
         ): UpdateQuery<T, number> {
           const keys = Object.keys(values);
 
-          return new UpdateQuery(queryExecutor, [], table, 'AFFECTED_COUNT', [
+          return new UpdateQuery(queryExecutor, [], table, "AFFECTED_COUNT", [
             new StringToken(`INSERT INTO`),
             new StringToken((table as Table<any, any>).getName()),
             new GroupToken([
@@ -703,7 +561,7 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
                   const column = (table as any)[columnName] as Column<any, any, any, any, any, any>;
 
                   return new StringToken(column.getSnakeCaseName());
-                }),
+                })
               ),
             ]),
             new StringToken(`UPDATE`),
@@ -718,11 +576,11 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
                 return new CollectionToken([
                   new StringToken(column.getSnakeCaseName()),
                   new StringToken(`=`),
-                  value && typeof value === `object` && 'toTokens' in value
+                  value && typeof value === `object` && "toTokens" in value
                     ? value.toTokens()
                     : new ParameterToken(value),
                 ]);
-              }),
+              })
             ),
           ]);
         },
@@ -730,7 +588,7 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
     },
 
     defaultValues() {
-      return new InsertQuery(queryExecutor, [], table, 'AFFECTED_COUNT', [
+      return new InsertQuery(queryExecutor, [], table, "AFFECTED_COUNT", [
         new StringToken(`INSERT INTO`),
         new StringToken((table as Table<any, any>).getName()),
         new StringToken(`DEFAULT VALUES`),
@@ -745,7 +603,7 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
       const list = Array.isArray(listOrItem) ? listOrItem : [listOrItem];
       const [firstItem] = list;
 
-      return new InsertQuery(queryExecutor, [], table, 'AFFECTED_COUNT', [
+      return new InsertQuery(queryExecutor, [], table, "AFFECTED_COUNT", [
         new StringToken(`INSERT INTO`),
         new StringToken((table as Table<any, any>).getName()),
         new GroupToken([
@@ -755,12 +613,12 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
               const column = (table as any)[columnName] as Column<any, any, any, any, any, any>;
 
               return new StringToken(column.getSnakeCaseName());
-            }),
+            })
           ),
         ]),
         new StringToken(`VALUES`),
         new SeparatorToken(
-          ',',
+          ",",
           list.map((values) => {
             return new GroupToken([
               new SeparatorToken(
@@ -771,17 +629,17 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
                   if (
                     value &&
                     typeof value === `object` &&
-                    'toTokens' in value &&
+                    "toTokens" in value &&
                     typeof value.toTokens === `function`
                   ) {
                     return new CollectionToken(value.toTokens());
                   } else {
                     return new ParameterToken(value);
                   }
-                }),
+                })
               ),
             ]);
-          }),
+          })
         ),
       ]);
     },

@@ -1,4 +1,4 @@
-import { reservedKeywords } from './reserved-keywords';
+import { reservedKeywords } from "./reserved-keywords.ts";
 
 export const wrapQuotes = (string: string) => {
   const isCamelCase = string.match(/[A-Z]/);
@@ -10,7 +10,7 @@ export const wrapQuotes = (string: string) => {
 
 export const toSnakeCase = (string: string) =>
   string
-    .replace(/\W+/g, ' ')
+    .replace(/\W+/g, " ")
     .split(/ |\B(?=[A-Z])/)
     .map((word) => word.toLowerCase())
-    .join('_');
+    .join("_");

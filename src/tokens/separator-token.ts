@@ -1,6 +1,6 @@
-import { State, Token, createQueryState } from './token';
+import { State, Token, createQueryState } from "./token.ts";
 
-export type Separator = ',';
+export type Separator = ",";
 
 export class SeparatorToken extends Token {
   separator: Separator;

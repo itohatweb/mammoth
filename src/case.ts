@@ -1,7 +1,7 @@
-import { BooleanQuery, Query } from './query';
-import { ParameterToken, StringToken, Token } from './tokens';
+import { BooleanQuery, Query } from "./query.ts";
+import { ParameterToken, StringToken, Token } from "./tokens/mod.ts";
 
-import { Expression } from './expression';
+import { Expression } from "./expression.ts";
 
 export class CaseStatement<DataType> {
   constructor(private readonly tokens: Token[]) {}
@@ -22,14 +22,10 @@ export class CaseStatement<DataType> {
   }
 
   else<T>(result: T) {
-    return new CaseStatement<DataType | T>([
-      ...this.tokens,
-      new StringToken(`ELSE`),
-      new ParameterToken(result),
-    ]);
+    return new CaseStatement<DataType | T>([...this.tokens, new StringToken(`ELSE`), new ParameterToken(result)]);
   }
 
-  end(): Expression<DataType, true, 'case'> {
+  end(): Expression<DataType, true, "case"> {
     return new Expression(this.tokens, `case`);
   }
 }

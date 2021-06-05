@@ -6,21 +6,21 @@ import {
   StringToken,
   Token,
   createQueryState,
-} from './tokens';
-import type { GetReturning, QueryExecutorFn, ResultType } from './types';
+} from "./tokens/mod.ts";
+import type { GetReturning, QueryExecutorFn, ResultType } from "./types.ts";
 
-import { Column } from './column';
-import { Expression } from './expression';
-import { Query } from './query';
-import type { ResultSet } from './result-set';
-import type { Table } from './TableType';
-import type { TableDefinition } from './table';
-import { wrapQuotes } from './naming';
+import { Column } from "./column.ts";
+import { Expression } from "./expression.ts";
+import { Query } from "./query.ts";
+import type { ResultSet } from "./result-set.ts";
+import type { Table } from "./TableType.ts";
+import type { TableDefinition } from "./table.ts";
+import { wrapQuotes } from "./naming/mod.ts";
 
 export const makeDeleteFrom = (queryExecutor: QueryExecutorFn) => <T extends Table<any, any>>(
-  table: T,
+  table: T
 ): T extends TableDefinition<any> ? never : DeleteQuery<T> => {
-  return new DeleteQuery<T>(queryExecutor, [], table, 'AFFECTED_COUNT', [
+  return new DeleteQuery<T>(queryExecutor, [], table, "AFFECTED_COUNT", [
     new StringToken(`DELETE FROM`),
     new StringToken((table as Table<any, any>).getName()),
   ]) as any;
@@ -44,7 +44,7 @@ export class DeleteQuery<
     private readonly returningKeys: string[],
     private readonly table: T,
     private readonly resultType: ResultType,
-    private readonly tokens: Token[],
+    private readonly tokens: Token[]
   ) {
     super();
   }
@@ -52,21 +52,19 @@ export class DeleteQuery<
   then<Result1, Result2 = never>(
     onFulfilled?:
       | ((
-          value: Returning extends number ? number : ResultSet<DeleteQuery<T, Returning>, false>[],
+          value: Returning extends number ? number : ResultSet<DeleteQuery<T, Returning>, false>[]
         ) => Result1 | PromiseLike<Result1>)
       | undefined
       | null,
-    onRejected?: ((reason: any) => Result2 | PromiseLike<Result2>) | undefined | null,
+    onRejected?: ((reason: any) => Result2 | PromiseLike<Result2>) | undefined | null
   ): Promise<Result1 | Result2> {
     const queryState = createQueryState(this.tokens);
 
     return this.queryExecutor(queryState.text.join(` `), queryState.parameters)
       .then((result) =>
         onFulfilled
-          ? onFulfilled(
-              this.resultType === `AFFECTED_COUNT` ? result.affectedCount : (result.rows as any),
-            )
-          : (result as any),
+          ? onFulfilled(this.resultType === `AFFECTED_COUNT` ? result.affectedCount : (result.rows as any))
+          : (result as any)
       )
       .catch(onRejected);
   }
@@ -79,7 +77,7 @@ export class DeleteQuery<
         `,`,
         fromItems.map((fromItem) => {
           return new StringToken(fromItem.getName());
-        }),
+        })
       ),
     ]);
   }
@@ -101,24 +99,17 @@ export class DeleteQuery<
   }
 
   returning<C1 extends keyof (T extends Table<string, infer Columns> ? Columns : never)>(
-    column1: C1,
+    column1: C1
   ): DeleteQuery<T, GetReturning<T extends Table<string, infer Columns> ? Columns : never, C1>>;
   returning<C1 extends keyof TableColumns, C2 extends keyof TableColumns>(
     column1: C1,
-    column2: C2,
+    column2: C2
   ): DeleteQuery<T, GetReturning<TableColumns, C1> & GetReturning<TableColumns, C2>>;
-  returning<
-    C1 extends keyof TableColumns,
-    C2 extends keyof TableColumns,
-    C3 extends keyof TableColumns
-  >(
+  returning<C1 extends keyof TableColumns, C2 extends keyof TableColumns, C3 extends keyof TableColumns>(
     column1: C1,
     column2: C2,
-    column3: C3,
-  ): DeleteQuery<
-    T,
-    GetReturning<TableColumns, C1> & GetReturning<TableColumns, C2> & GetReturning<TableColumns, C3>
-  >;
+    column3: C3
+  ): DeleteQuery<T, GetReturning<TableColumns, C1> & GetReturning<TableColumns, C2> & GetReturning<TableColumns, C3>>;
   returning<
     C1 extends keyof TableColumns,
     C2 extends keyof TableColumns,
@@ -128,7 +119,7 @@ export class DeleteQuery<
     column1: C1,
     column2: C2,
     column3: C3,
-    column4: C4,
+    column4: C4
   ): DeleteQuery<
     T,
     GetReturning<TableColumns, C1> &
@@ -147,7 +138,7 @@ export class DeleteQuery<
     column2: C2,
     column3: C3,
     column4: C4,
-    column5: C5,
+    column5: C5
   ): DeleteQuery<
     T,
     GetReturning<TableColumns, C1> &
@@ -169,7 +160,7 @@ export class DeleteQuery<
     column3: C3,
     column4: C4,
     column5: C5,
-    column6: C6,
+    column6: C6
   ): DeleteQuery<
     T,
     GetReturning<TableColumns, C1> &
@@ -194,7 +185,7 @@ export class DeleteQuery<
     column4: C4,
     column5: C5,
     column6: C6,
-    column7: C7,
+    column7: C7
   ): DeleteQuery<
     T,
     GetReturning<TableColumns, C1> &
@@ -222,7 +213,7 @@ export class DeleteQuery<
     column5: C5,
     column6: C6,
     column7: C7,
-    column8: C8,
+    column8: C8
   ): DeleteQuery<
     T,
     GetReturning<TableColumns, C1> &
@@ -253,7 +244,7 @@ export class DeleteQuery<
     column6: C6,
     column7: C7,
     column8: C8,
-    column9: C9,
+    column9: C9
   ): DeleteQuery<
     T,
     GetReturning<TableColumns, C1> &
@@ -287,7 +278,7 @@ export class DeleteQuery<
     column7: C7,
     column8: C8,
     column9: C9,
-    column10: C10,
+    column10: C10
   ): DeleteQuery<
     T,
     GetReturning<TableColumns, C1> &
@@ -302,7 +293,7 @@ export class DeleteQuery<
       GetReturning<TableColumns, C10>
   >;
   returning(...columnNames: any[]) {
-    return new DeleteQuery(this.queryExecutor, columnNames, this.table, 'ROWS', [
+    return new DeleteQuery(this.queryExecutor, columnNames, this.table, "ROWS", [
       ...this.tokens,
       new StringToken(`RETURNING`),
       new SeparatorToken(
@@ -315,7 +306,7 @@ export class DeleteQuery<
           } else {
             return new StringToken(wrapQuotes(column.getSnakeCaseName()));
           }
-        }),
+        })
       ),
     ]) as any;
   }

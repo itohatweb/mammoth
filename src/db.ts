@@ -1,25 +1,23 @@
-import * as sqlFunctions from './sql-functions';
+import * as sqlFunctions from "./sql-functions.ts";
 
-import { Column, ColumnDefinition, ColumnDefinitionFormat } from './column';
-import { InsertIntoResult, makeInsertInto } from './insert';
-import { SelectFn, makeSelect } from './select';
-import { TableDefinition, makeTable } from './table';
+import { Column, ColumnDefinition, ColumnDefinitionFormat } from "./column.ts";
+import { InsertIntoResult, makeInsertInto } from "./insert.ts";
+import { makeSelect } from "./select.ts";
+import { TableDefinition, makeTable } from "./table.ts";
 
-import { CaseStatement } from './case';
-import { QueryExecutorFn } from './types';
-import { Table } from './TableType';
-import { makeDeleteFrom } from './delete';
-import { makeTruncate } from './truncate';
-import { makeUpdate } from './update';
-import { makeWith } from './with';
-import { toSnakeCase } from './naming';
+import { CaseStatement } from "./case.ts";
+import { QueryExecutorFn } from "./types.ts";
+import { Table } from "./TableType.ts";
+import { makeDeleteFrom } from "./delete.ts";
+import { makeTruncate } from "./truncate.ts";
+import { makeUpdate } from "./update.ts";
+import { makeWith } from "./with.ts";
+import { toSnakeCase } from "./naming/mod.ts";
 
 const createTables = <TableDefinitions extends { [key: string]: TableDefinition<any> }>(
-  tableDefinitions: TableDefinitions,
+  tableDefinitions: TableDefinitions
 ): {
-  [TableName in keyof TableDefinitions]: TableDefinitions[TableName] extends TableDefinition<
-    infer ColumnDefinitions
-  >
+  [TableName in keyof TableDefinitions]: TableDefinitions[TableName] extends TableDefinition<infer ColumnDefinitions>
     ? Table<
         TableName,
         {
@@ -27,15 +25,9 @@ const createTables = <TableDefinitions extends { [key: string]: TableDefinition<
             ? Column<
                 K,
                 TableName,
-                ColumnDefinitions[K] extends ColumnDefinition<infer DataType, any, any>
-                  ? DataType
-                  : never,
-                ColumnDefinitions[K] extends ColumnDefinition<any, infer IsNotNull, any>
-                  ? IsNotNull
-                  : never,
-                ColumnDefinitions[K] extends ColumnDefinition<any, any, infer HasDefault>
-                  ? HasDefault
-                  : never,
+                ColumnDefinitions[K] extends ColumnDefinition<infer DataType, any, any> ? DataType : never,
+                ColumnDefinitions[K] extends ColumnDefinition<any, infer IsNotNull, any> ? IsNotNull : never,
+                ColumnDefinitions[K] extends ColumnDefinition<any, any, infer HasDefault> ? HasDefault : never,
                 undefined
               >
             : never;
@@ -54,7 +46,7 @@ const createTables = <TableDefinitions extends { [key: string]: TableDefinition<
 
 export const defineDb = <TableDefinitions extends { [key: string]: TableDefinition<any> }>(
   tableDefinitions: TableDefinitions,
-  queryExecutor: QueryExecutorFn,
+  queryExecutor: QueryExecutorFn
 ) => {
   return {
     /** @internal */

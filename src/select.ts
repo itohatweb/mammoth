@@ -355,6 +355,16 @@ export class SelectQuery<Columns extends { [column: string]: any }, IncludesStar
     ]);
   }
 
+  // TODO: remove this when mammoth has it officially supported
+  asc(): SelectQuery<Columns> {
+    return this.newSelectQuery([...this.tokens, new StringToken(`ASC`)]);
+  }
+
+  // TODO: remove this when mammoth has it officially supported
+  desc(): SelectQuery<Columns> {
+    return this.newSelectQuery([...this.tokens, new StringToken(`DESC`)]);
+  }
+
   // [ LIMIT { count | ALL } ]
   limit(limit: number | "ALL"): SelectQuery<Columns> {
     if (limit === `ALL`) {

@@ -70,7 +70,9 @@ export function box<T>(): ColumnDefinition<T>;
 export function box() {
   return makeDataType(`box`);
 }
-export function bytea(): ColumnDefinition<Blob>;
+
+// TODO: check if this is really the right type
+export function bytea(): ColumnDefinition<ArrayBuffer>;
 export function bytea<T>(): ColumnDefinition<T>;
 export function bytea() {
   return makeDataType(`bytea`);

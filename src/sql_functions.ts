@@ -109,14 +109,14 @@ export const arrayAgg = <DataType>(expression: Expression<DataType, boolean, any
     "arrayAgg"
   );
 
-export const count = (expression?: Expression<any, any, any>): Expression<Int8, true, "count"> => {
+export const count = (expression?: Expression<any, any, any>): Expression<BigInt, true, "count"> => {
   if (!expression) {
-    return new Expression<Int8, true, "count">([new StringToken(`COUNT(*)`)], "count");
+    return new Expression<BigInt, true, "count">([new StringToken(`COUNT(*)`)], "count");
   }
 
   const tokens = expression.toTokens();
 
-  return new Expression<Int8, true, "count">([new StringToken(`COUNT`), new GroupToken(tokens)], "count");
+  return new Expression<BigInt, true, "count">([new StringToken(`COUNT`), new GroupToken(tokens)], "count");
 };
 
 export const min = <DataType>(expression: Expression<DataType, boolean, any>): Expression<DataType, false, "min"> =>

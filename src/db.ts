@@ -12,7 +12,6 @@ import { makeDeleteFrom } from "./delete.ts";
 import { makeTruncate } from "./truncate.ts";
 import { makeUpdate } from "./update.ts";
 import { makeWith } from "./with.ts";
-import { toSnakeCase } from "./naming/mod.ts";
 
 const createTables = <TableDefinitions extends { [key: string]: TableDefinition<any> }>(
   tableDefinitions: TableDefinitions
@@ -38,7 +37,7 @@ const createTables = <TableDefinitions extends { [key: string]: TableDefinition<
   return Object.keys(tableDefinitions).reduce((tables, key) => {
     const tableDefinition = tableDefinitions[key];
 
-    tables[key] = makeTable(toSnakeCase(key), undefined, tableDefinition as any);
+    tables[key] = makeTable(key, undefined, tableDefinition as any);
 
     return tables;
   }, {} as any);

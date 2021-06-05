@@ -1,4 +1,4 @@
-import { reservedKeywords } from "./reserved-keywords.ts";
+import { reservedKeywords } from "./reserved_keywords.ts";
 
 export const wrapQuotes = (string: string) => {
   const isCamelCase = string.match(/[A-Z]/);

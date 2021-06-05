@@ -4,8 +4,8 @@ import { GetReturning, QueryExecutorFn, ResultType } from "./types.ts";
 import { Column } from "./column.ts";
 import { Expression } from "./expression.ts";
 import { Query } from "./query.ts";
-import { ResultSet } from "./result-set.ts";
-import { Table } from "./TableType.ts";
+import { ResultSet } from "./result_set.ts";
+import { Table } from "./table_type.ts";
 import { wrapQuotes } from "./naming/mod.ts";
 
 // https://www.postgresql.org/docs/12/sql-update.html

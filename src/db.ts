@@ -1,13 +1,13 @@
-import * as sqlFunctions from "./sql-functions.ts";
+import * as sqlFunctions from "./sql_functions.ts";
 
 import { Column, ColumnDefinition, ColumnDefinitionFormat } from "./column.ts";
-import { InsertIntoResult, makeInsertInto } from "./insert.ts";
+import { makeInsertInto } from "./insert.ts";
 import { makeSelect } from "./select.ts";
 import { TableDefinition, makeTable } from "./table.ts";
 
 import { CaseStatement } from "./case.ts";
 import { QueryExecutorFn } from "./types.ts";
-import { Table } from "./TableType.ts";
+import { Table } from "./table_type.ts";
 import { makeDeleteFrom } from "./delete.ts";
 import { makeTruncate } from "./truncate.ts";
 import { makeUpdate } from "./update.ts";

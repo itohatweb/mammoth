@@ -1,6 +1,6 @@
 import { Column, ColumnDefinition } from "./column.ts";
 
-import { Table } from "./TableType.ts";
+import { Table } from "./table_type.ts";
 
 export type TableRow<T> = T extends TableDefinition<infer Columns>
   ? {

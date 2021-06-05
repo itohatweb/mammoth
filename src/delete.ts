@@ -1,19 +1,11 @@
-import {
-  CollectionToken,
-  GroupToken,
-  ParameterToken,
-  SeparatorToken,
-  StringToken,
-  Token,
-  createQueryState,
-} from "./tokens/mod.ts";
+import { ParameterToken, SeparatorToken, StringToken, Token, createQueryState } from "./tokens/mod.ts";
 import type { GetReturning, QueryExecutorFn, ResultType } from "./types.ts";
 
 import { Column } from "./column.ts";
 import { Expression } from "./expression.ts";
 import { Query } from "./query.ts";
-import type { ResultSet } from "./result-set.ts";
-import type { Table } from "./TableType.ts";
+import type { ResultSet } from "./result_set.ts";
+import type { Table } from "./table_type.ts";
 import type { TableDefinition } from "./table.ts";
 import { wrapQuotes } from "./naming/mod.ts";
 

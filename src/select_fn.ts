@@ -2,7 +2,7 @@ import { Column, ColumnSet } from './column.ts';
 
 import { Expression } from './expression.ts';
 import { SelectQuery } from './select.ts';
-import { Star } from './sql-functions.ts';
+import { Star } from './sql_functions.ts';
 
 export type GetSelectableName<S> = S extends Column<infer A2, string, any, boolean, boolean, any>
   ? A2

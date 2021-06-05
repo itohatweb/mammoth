@@ -1,10 +1,10 @@
-import { AnyNumber, Int8 } from "./data-types.ts";
+import { AnyNumber, Int8 } from "./data_types.ts";
 import { CollectionToken, EmptyToken, GroupToken, ParameterToken, SeparatorToken, StringToken } from "./tokens/mod.ts";
 import { DefaultExpression, Expression } from "./expression.ts";
 
 import { ColumnSet } from "./column.ts";
 import { Query } from "./query.ts";
-import { Table } from "./TableType.ts";
+import { Table } from "./table_type.ts";
 import { wrapQuotes } from "./naming/mod.ts";
 
 export class Star {

@@ -7,16 +7,16 @@ import {
   Token,
   createQueryState,
 } from "./tokens/mod.ts";
-import { SelectFn, Selectable } from "./SelectFn.ts";
+import { SelectFn, Selectable } from "./select_fn.ts";
 
 import { Column } from "./column.ts";
 import { Expression } from "./expression.ts";
 import { FromItem } from "./with.ts";
 import { Query } from "./query.ts";
 import { QueryExecutorFn } from "./types.ts";
-import { ResultSet } from "./result-set.ts";
-import { Star } from "./sql-functions.ts";
-import { Table } from "./TableType.ts";
+import { ResultSet } from "./result_set.ts";
+import { Star } from "./sql_functions.ts";
+import { Table } from "./table_type.ts";
 import { TableDefinition } from "./table.ts";
 import { wrapQuotes } from "./naming/mod.ts";
 

@@ -3,7 +3,7 @@ import { GetDataType, QueryExecutorFn } from "./types.ts";
 
 import { Expression } from "./expression.ts";
 import { Query } from "./query.ts";
-import { ResultSet } from "./result-set.ts";
+import { ResultSet } from "./result_set.ts";
 import { SelectQuery } from "./select.ts";
 import { wrapQuotes } from "./naming/mod.ts";
 

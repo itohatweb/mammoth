@@ -71,7 +71,7 @@ export function box() {
   return makeDataType(`box`);
 }
 
-// TODO: check if this is really the right type
+// TODO: check if this is really the right type maybe it is https://deno.land/std@0.97.0/node/buffer.ts
 export function bytea(): ColumnDefinition<ArrayBuffer>;
 export function bytea<T>(): ColumnDefinition<T>;
 export function bytea() {

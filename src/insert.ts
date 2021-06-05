@@ -15,12 +15,12 @@ import { Column } from "./column.ts";
 import { DeleteQuery } from "./delete.ts";
 import { Expression } from "./expression.ts";
 import { Query } from "./query.ts";
-import { ResultSet } from "./result-set.ts";
-import { Table } from "./TableType.ts";
+import { ResultSet } from "./result_set.ts";
+import { Table } from "./table_type.ts";
 import { TableDefinition } from "./table.ts";
 import { UpdateQuery } from "./update.ts";
 import { wrapQuotes } from "./naming/mod.ts";
-import { SelectFn } from "./SelectFn.ts";
+import { SelectFn } from "./select_fn.ts";
 
 // https://www.postgresql.org/docs/12/sql-insert.html
 export class InsertQuery<

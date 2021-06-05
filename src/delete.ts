@@ -293,10 +293,10 @@ export class DeleteQuery<
         columnNames.map((alias) => {
           const column = (this.table as any)[alias] as Column<any, any, any, any, any, any>;
 
-          if (alias !== column.getSnakeCaseName()) {
-            return new StringToken(`${wrapQuotes(column.getSnakeCaseName())} ${wrapQuotes(alias)}`);
+          if (alias !== column.getName()) {
+            return new StringToken(`${wrapQuotes(column.getName())} ${wrapQuotes(alias)}`);
           } else {
-            return new StringToken(wrapQuotes(column.getSnakeCaseName()));
+            return new StringToken(wrapQuotes(column.getName()));
           }
         })
       ),

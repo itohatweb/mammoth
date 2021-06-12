@@ -104,7 +104,7 @@ export const makeColumnDefinition = <DataType, IsNotNull extends boolean = false
 
     references(table, columnName) {
       referencesTable = table;
-      referencesColumn = columnName;
+      referencesColumn = columnName.toString();
 
       return this as any;
     },

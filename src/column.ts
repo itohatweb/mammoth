@@ -1,5 +1,5 @@
 import { StringToken, Token } from "./tokens/mod.ts";
-import { toSnakeCase, wrapQuotes } from "./naming/mod.ts";
+import { wrapQuotes } from "./naming/mod.ts";
 
 import { Expression } from "./expression.ts";
 import { TableDefinition } from "./table.ts";
@@ -104,7 +104,7 @@ export const makeColumnDefinition = <DataType, IsNotNull extends boolean = false
 
     references(table, columnName) {
       referencesTable = table;
-      referencesColumn = columnName;
+      referencesColumn = columnName.toString();
 
       return this as any;
     },
@@ -138,11 +138,6 @@ export class Column<
   private _columnBrand: any;
 
   /** @internal */
-  getSnakeCaseName() {
-    return toSnakeCase(this.columnName);
-  }
-
-  /** @internal */
   getName() {
     return this.columnName;
   }
@@ -154,12 +149,8 @@ export class Column<
   ) {
     super(
       originalColumnName
-        ? [
-            new StringToken(
-              `${wrapQuotes((tableName as unknown) as string)}.${wrapQuotes(toSnakeCase(originalColumnName))}`
-            ),
-          ]
-        : [new StringToken(`${wrapQuotes((tableName as unknown) as string)}.${wrapQuotes(toSnakeCase(columnName))}`)],
+        ? [new StringToken(`${wrapQuotes((tableName as unknown) as string)}.${wrapQuotes(originalColumnName)}`)]
+        : [new StringToken(`${wrapQuotes((tableName as unknown) as string)}.${wrapQuotes(columnName)}`)],
       columnName as any
     );
   }
@@ -172,7 +163,7 @@ export class Column<
 
   /** @internal */
   toTokens(includeAlias?: boolean): Token[] {
-    const snakeCaseColumnName = toSnakeCase((this.columnName as unknown) as string);
+    const snakeCaseColumnName = (this.columnName as unknown) as string;
     const toStringTokens = (tableName: TableName, columnName: string, alias?: string) => {
       const initialToken = new StringToken(`${wrapQuotes((tableName as unknown) as string)}.${wrapQuotes(columnName)}`);
 
@@ -185,14 +176,14 @@ export class Column<
 
     if (includeAlias) {
       return this.originalColumnName
-        ? toStringTokens(this.tableName, toSnakeCase(this.originalColumnName), this.columnName)
+        ? toStringTokens(this.tableName, this.originalColumnName, this.columnName)
         : snakeCaseColumnName === (this.columnName as unknown)
         ? toStringTokens(this.tableName, snakeCaseColumnName)
         : toStringTokens(this.tableName, snakeCaseColumnName, this.columnName);
     }
 
     return this.originalColumnName
-      ? toStringTokens(this.tableName, toSnakeCase(this.originalColumnName))
+      ? toStringTokens(this.tableName, this.originalColumnName)
       : toStringTokens(this.tableName, snakeCaseColumnName);
   }
 }

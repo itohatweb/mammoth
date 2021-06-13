@@ -6,7 +6,7 @@ const variableLength = (string: string, ...n: (number | undefined)[]) =>
 const makeDataType = makeColumnDefinition;
 
 export type Int4 = number;
-export type Int8 = string;
+export type Int8 = bigint;
 export type Float4 = number;
 // In pg, by default, double precision / float8s are parsed through `parseFloat()` JS global
 // func. This means we lose precision. We align the types with pg and these can be altered in

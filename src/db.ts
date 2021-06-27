@@ -70,6 +70,32 @@ export const defineDb = <TableDefinitions extends { [key: string]: TableDefiniti
         };
       });
     },
+    async createTables(tableName?: keyof typeof tableDefinitions) {
+      for (const definition of tableName
+        ? [this.getTableDefinitions().find((table) => table.name === tableName)!]
+        : this.getTableDefinitions()) {
+        const queryParts = [];
+        queryParts.push(`CREATE TABLE IF NOT EXISTS ${definition.name}`);
+
+        const columnParts: string[] = [];
+
+        for (const { name, dataType, isNotNull, isPrimaryKey, isUnique, defaultExpression } of definition.columns) {
+          const column: string[] = [];
+          column.push(name, dataType);
+          if (isNotNull) column.push("NOT NULL");
+          if (isPrimaryKey) column.push("PRIMARY KEY");
+          if (isUnique) column.push("UNIQUE");
+          if (defaultExpression !== undefined) {
+            column.push(`DEFAULT ${defaultExpression}`);
+          }
+          columnParts.push(column.join(" "));
+        }
+
+        queryParts.push(`( ${columnParts.join(", ")} );`);
+
+        await queryExecutor(queryParts.join(" "), []);
+      }
+    },
     select: makeSelect(queryExecutor),
     insertInto: makeInsertInto(queryExecutor),
     deleteFrom: makeDeleteFrom(queryExecutor),

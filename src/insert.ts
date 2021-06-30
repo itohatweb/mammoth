@@ -511,7 +511,7 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
           columnNames?.map((columnName) => {
             const column = (table as any)[columnName] as Column<any, any, any, any, any, any>;
 
-            return new StringToken(column.getName());
+            return new StringToken(wrapQuotes(column.getName()));
           }) || []
         ),
       ]),
@@ -520,19 +520,19 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
     deleteFrom<DeleteTable extends Table<any, any>>(deleteTable: DeleteTable) {
       return new DeleteQuery<DeleteTable, number>(queryExecutor, [], deleteTable, "AFFECTED_COUNT", [
         new StringToken(`INSERT INTO`),
-        new StringToken((table as Table<any, any>).getName()),
+        new StringToken(wrapQuotes((table as Table<any, any>).getName())),
         new GroupToken([
           new SeparatorToken(
             `,`,
             columnNames!.map((columnName) => {
               const column = (table as any)[columnName] as Column<any, any, any, any, any, any>;
 
-              return new StringToken(column.getName());
+              return new StringToken(wrapQuotes(column.getName()));
             })
           ),
         ]),
         new StringToken(`DELETE FROM`),
-        new StringToken((deleteTable as Table<any, any>).getName()),
+        new StringToken(wrapQuotes((deleteTable as Table<any, any>).getName())),
       ]);
     },
 
@@ -553,19 +553,19 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
 
           return new UpdateQuery(queryExecutor, [], table, "AFFECTED_COUNT", [
             new StringToken(`INSERT INTO`),
-            new StringToken((table as Table<any, any>).getName()),
+            new StringToken(wrapQuotes((table as Table<any, any>).getName())),
             new GroupToken([
               new SeparatorToken(
                 `,`,
                 columnNames!.map((columnName) => {
                   const column = (table as any)[columnName] as Column<any, any, any, any, any, any>;
 
-                  return new StringToken(column.getName());
+                  return new StringToken(wrapQuotes(column.getName()));
                 })
               ),
             ]),
             new StringToken(`UPDATE`),
-            new StringToken((updateTable as Table<any, any>).getName()),
+            new StringToken(wrapQuotes((updateTable as Table<any, any>).getName())),
             new StringToken(`SET`),
             new SeparatorToken(
               `,`,
@@ -590,7 +590,7 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
     defaultValues() {
       return new InsertQuery(queryExecutor, [], table, "AFFECTED_COUNT", [
         new StringToken(`INSERT INTO`),
-        new StringToken((table as Table<any, any>).getName()),
+        new StringToken(wrapQuotes((table as Table<any, any>).getName())),
         new StringToken(`DEFAULT VALUES`),
       ]);
     },
@@ -605,14 +605,14 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
 
       return new InsertQuery(queryExecutor, [], table, "AFFECTED_COUNT", [
         new StringToken(`INSERT INTO`),
-        new StringToken((table as Table<any, any>).getName()),
+        new StringToken(wrapQuotes((table as Table<any, any>).getName())),
         new GroupToken([
           new SeparatorToken(
             `,`,
             Object.keys(firstItem).map((columnName) => {
               const column = (table as any)[columnName] as Column<any, any, any, any, any, any>;
 
-              return new StringToken(column.getName());
+              return new StringToken(wrapQuotes(column.getName()));
             })
           ),
         ]),

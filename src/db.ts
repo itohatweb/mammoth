@@ -75,7 +75,7 @@ export const defineDb = <TableDefinitions extends { [key: string]: TableDefiniti
         ? [this.getTableDefinitions().find((table) => table.name === tableName)!]
         : this.getTableDefinitions()) {
         const queryParts = [];
-        queryParts.push(`CREATE TABLE IF NOT EXISTS ${definition.name}`);
+        queryParts.push(`CREATE TABLE IF NOT EXISTS "${definition.name}"`);
 
         const columnParts: string[] = [];
 

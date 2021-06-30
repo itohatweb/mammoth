@@ -269,7 +269,7 @@ export class InsertQuery<
           if (alias !== column.getName()) {
             return new StringToken(`${column.getName()} ${wrapQuotes(alias)}`);
           } else {
-            return new StringToken(column.getName());
+            return new StringToken(wrapQuotes(column.getName()));
           }
         })
       ),
@@ -320,14 +320,14 @@ export class InsertQuery<
 
               if (value && typeof value === `object` && "toTokens" in value && typeof value.toTokens === `function`) {
                 return new CollectionToken([
-                  new StringToken(column.getName()),
+                  new StringToken(wrapQuotes(column.getName())),
                   new StringToken(`=`),
                   // TODO: should we add a group here-o?
                   ...value.toTokens(),
                 ]);
               } else {
                 return new CollectionToken([
-                  new StringToken(column.getName()),
+                  new StringToken(wrapQuotes(column.getName())),
                   new StringToken(`=`),
                   new ParameterToken(value),
                 ]);
@@ -392,14 +392,14 @@ export class InsertQuery<
 
               if (value && typeof value === `object` && "toTokens" in value && typeof value.toTokens === `function`) {
                 return new CollectionToken([
-                  new StringToken(column.getName()),
+                  new StringToken(wrapQuotes(column.getName())),
                   new StringToken(`=`),
                   // TODO: should we add a group here-o?
                   ...value.toTokens(),
                 ]);
               } else {
                 return new CollectionToken([
-                  new StringToken(column.getName()),
+                  new StringToken(wrapQuotes(column.getName())),
                   new StringToken(`=`),
                   new ParameterToken(value),
                 ]);
@@ -511,7 +511,7 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
           columnNames?.map((columnName) => {
             const column = (table as any)[columnName] as Column<any, any, any, any, any, any>;
 
-            return new StringToken(column.getName());
+            return new StringToken(wrapQuotes(column.getName()));
           }) || []
         ),
       ]),
@@ -527,7 +527,7 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
             columnNames!.map((columnName) => {
               const column = (table as any)[columnName] as Column<any, any, any, any, any, any>;
 
-              return new StringToken(column.getName());
+              return new StringToken(wrapQuotes(column.getName()));
             })
           ),
         ]),
@@ -560,7 +560,7 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
                 columnNames!.map((columnName) => {
                   const column = (table as any)[columnName] as Column<any, any, any, any, any, any>;
 
-                  return new StringToken(column.getName());
+                  return new StringToken(wrapQuotes(column.getName()));
                 })
               ),
             ]),
@@ -574,7 +574,7 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
                 const value = (values as any)[key];
 
                 return new CollectionToken([
-                  new StringToken(column.getName()),
+                  new StringToken(wrapQuotes(column.getName())),
                   new StringToken(`=`),
                   value && typeof value === `object` && "toTokens" in value
                     ? value.toTokens()
@@ -612,7 +612,7 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
             Object.keys(firstItem).map((columnName) => {
               const column = (table as any)[columnName] as Column<any, any, any, any, any, any>;
 
-              return new StringToken(column.getName());
+              return new StringToken(wrapQuotes(column.getName()));
             })
           ),
         ]),

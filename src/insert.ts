@@ -504,7 +504,7 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
   return {
     select: makeSelect(queryExecutor, [
       new StringToken(`INSERT INTO`),
-      new StringToken((table as Table<any, any>).getName()),
+      new StringToken(wrapQuotes((table as Table<any, any>).getName())),
       new GroupToken([
         new SeparatorToken(
           `,`,

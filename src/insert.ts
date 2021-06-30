@@ -348,7 +348,7 @@ export class InsertQuery<
         ",",
         columnNames.map((columnName) => {
           const column = (this.table as any)[columnName] as Column<any, any, any, any, any, any>;
-          return new StringToken(column.getName());
+          return new StringToken(wrapQuotes(column.getName()));
         })
       ),
     ]);

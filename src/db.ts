@@ -12,6 +12,7 @@ import { makeDeleteFrom } from "./delete.ts";
 import { makeTruncate } from "./truncate.ts";
 import { makeUpdate } from "./update.ts";
 import { makeWith } from "./with.ts";
+import { wrapQuotes } from "./naming/mod.ts";
 
 const createTables = <TableDefinitions extends { [key: string]: TableDefinition<any> }>(
   tableDefinitions: TableDefinitions
@@ -75,13 +76,13 @@ export const defineDb = <TableDefinitions extends { [key: string]: TableDefiniti
         ? [this.getTableDefinitions().find((table) => table.name === tableName)!]
         : this.getTableDefinitions()) {
         const queryParts = [];
-        queryParts.push(`CREATE TABLE IF NOT EXISTS "${definition.name}"`);
+        queryParts.push(`CREATE TABLE IF NOT EXISTS ${wrapQuotes(definition.name)}`);
 
         const columnParts: string[] = [];
 
         for (const { name, dataType, isNotNull, isPrimaryKey, isUnique, defaultExpression } of definition.columns) {
           const column: string[] = [];
-          column.push(name, dataType);
+          column.push(wrapQuotes(name), dataType);
           if (isNotNull) column.push("NOT NULL");
           if (isPrimaryKey) column.push("PRIMARY KEY");
           if (isUnique) column.push("UNIQUE");

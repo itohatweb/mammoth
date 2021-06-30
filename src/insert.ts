@@ -511,7 +511,7 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
           columnNames?.map((columnName) => {
             const column = (table as any)[columnName] as Column<any, any, any, any, any, any>;
 
-            return new StringToken(wrapQuotes(column.getName()));
+            return new StringToken(column.getName());
           }) || []
         ),
       ]),
@@ -527,7 +527,7 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
             columnNames!.map((columnName) => {
               const column = (table as any)[columnName] as Column<any, any, any, any, any, any>;
 
-              return new StringToken(wrapQuotes(column.getName()));
+              return new StringToken(column.getName());
             })
           ),
         ]),
@@ -560,7 +560,7 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
                 columnNames!.map((columnName) => {
                   const column = (table as any)[columnName] as Column<any, any, any, any, any, any>;
 
-                  return new StringToken(wrapQuotes(column.getName()));
+                  return new StringToken(column.getName());
                 })
               ),
             ]),
@@ -612,7 +612,7 @@ export const makeInsertInto = (queryExecutor: QueryExecutorFn) => <T extends Tab
             Object.keys(firstItem).map((columnName) => {
               const column = (table as any)[columnName] as Column<any, any, any, any, any, any>;
 
-              return new StringToken(wrapQuotes(column.getName()));
+              return new StringToken(column.getName());
             })
           ),
         ]),

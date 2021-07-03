@@ -1,4 +1,4 @@
-import { AnyNumber, Int8 } from "./data_types.ts";
+import { AnyNumber, Int8, Numeric } from "./data_types.ts";
 import { CollectionToken, EmptyToken, GroupToken, ParameterToken, SeparatorToken, StringToken } from "./tokens/mod.ts";
 import { DefaultExpression, Expression } from "./expression.ts";
 
@@ -117,6 +117,12 @@ export const count = (expression?: Expression<any, any, any>): Expression<Int8, 
   const tokens = expression.toTokens();
 
   return new Expression<Int8, true, "count">([new StringToken(`COUNT`), new GroupToken(tokens)], "count");
+};
+
+export const ceiling = (expression: Expression<any, any, any>): Expression<Numeric, true, "ceiling"> => {
+  const tokens = expression.toTokens();
+
+  return new Expression<Numeric, true, "ceiling">([new StringToken(`CEILING`), new GroupToken(tokens)], "ceiling");
 };
 
 export const min = <DataType>(expression: Expression<DataType, boolean, any>): Expression<DataType, false, "min"> =>

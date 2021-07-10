@@ -109,6 +109,21 @@ export const arrayAgg = <DataType>(expression: Expression<DataType, boolean, any
     "arrayAgg"
   );
 
+export const arrayAppend = <DataType extends any[]>(
+  expression: Expression<DataType, boolean, any>,
+  value: DataType extends (infer U)[] ? U : never
+) => {
+  return new Expression<DataType, true, "arrayAppend">(
+    [
+      new StringToken(`array_append`),
+      new GroupToken([
+        new SeparatorToken(",", [new CollectionToken(expression.toTokens()), new ParameterToken(value)]),
+      ]),
+    ],
+    "arrayAppend"
+  );
+};
+
 export const count = (expression?: Expression<any, any, any>): Expression<Int8, true, "count"> => {
   if (!expression) {
     return new Expression<Int8, true, "count">([new StringToken(`COUNT(*)`)], "count");

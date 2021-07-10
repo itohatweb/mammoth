@@ -11,6 +11,7 @@ export interface ColumnDefinitionFormat {
   defaultExpression?: string;
   checkExpression?: string;
   isUnique: boolean;
+  isIndexed: boolean;
   referencesTable?: string;
   referencesSelf?: boolean;
   referencesColumn?: string;
@@ -30,6 +31,7 @@ export interface ColumnDefinition<DataType, IsNotNull extends boolean = false, H
   ): ColumnDefinition<DataType, IsNotNull, IsAlwaysSettingAValue>;
   check(expression: string): ColumnDefinition<DataType, IsNotNull, HasDefault>;
   unique(): ColumnDefinition<DataType, IsNotNull, HasDefault>;
+  indexed(): ColumnDefinition<DataType, IsNotNull, HasDefault>;
   references<
     T extends TableDefinition<any>,
     ColumnName extends T extends TableDefinition<infer Columns> ? keyof Columns : never
@@ -52,6 +54,7 @@ export const makeColumnDefinition = <DataType, IsNotNull extends boolean = false
   let defaultExpression: string | undefined = undefined;
   let checkExpression: string | undefined = undefined;
   let isUnique = false;
+  let isIndexed = false;
   let referencesTable: any = undefined;
   let referencesSelf: boolean = false;
   let referencesColumn: string | undefined = undefined;
@@ -65,6 +68,7 @@ export const makeColumnDefinition = <DataType, IsNotNull extends boolean = false
         defaultExpression,
         checkExpression,
         isUnique,
+        isIndexed,
         referencesTable,
         referencesSelf,
         referencesColumn,
@@ -98,6 +102,12 @@ export const makeColumnDefinition = <DataType, IsNotNull extends boolean = false
 
     unique() {
       isUnique = true;
+
+      return this as any;
+    },
+
+    indexed() {
+      isIndexed = true;
 
       return this as any;
     },

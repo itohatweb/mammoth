@@ -80,7 +80,15 @@ export const defineDb = <TableDefinitions extends { [key: string]: TableDefiniti
 
         const columnParts: string[] = [];
 
-        for (const { name, dataType, isNotNull, isPrimaryKey, isUnique, defaultExpression } of definition.columns) {
+        for (const {
+          name,
+          dataType,
+          isNotNull,
+          isPrimaryKey,
+          isUnique,
+          defaultExpression,
+          enumValues,
+        } of definition.columns) {
           const column: string[] = [];
           column.push(wrapQuotes(name), dataType);
           if (isNotNull) column.push("NOT NULL");
@@ -90,6 +98,33 @@ export const defineDb = <TableDefinitions extends { [key: string]: TableDefiniti
             column.push(`DEFAULT ${defaultExpression}`);
           }
           columnParts.push(column.join(" "));
+
+          if (enumValues !== undefined) {
+            // RENAME THE EXISTING ENUM SO THE NAME OF THE NEW ENUM DOES NOT CONFLICT WITH
+            let enumQuery = `
+            DO
+            $do$
+            BEGIN
+               IF EXISTS (SELECT 1 FROM pg_type WHERE typname = '${dataType}') THEN
+                   ALTER TYPE ${wrapQuotes(dataType)} RENAME TO "${dataType}_old";
+               END IF;
+            END
+            $do$;
+            `;
+
+            // CREATE THE NEW ENUM
+            enumQuery += `CREATE TYPE "${dataType}" AS ENUM(${enumValues.map((value) => `'${value}'`)});`;
+
+            // ALTER THE TABLE IF IT EXIST TO USE THE NEW ENUM
+            enumQuery += `ALTER TABLE IF EXISTS ${wrapQuotes(definition.name)} ALTER COLUMN ${wrapQuotes(
+              name
+            )} TYPE ${wrapQuotes(dataType)} USING ${wrapQuotes(name)}::text::${dataType};`;
+
+            // DELETE THE OLD ENUM
+            enumQuery += `DROP TYPE IF EXISTS "${dataType}_old";`;
+
+            await queryExecutor(enumQuery, []);
+          }
         }
 
         queryParts.push(`( ${columnParts.join(", ")} );`);

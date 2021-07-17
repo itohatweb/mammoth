@@ -150,7 +150,7 @@ export const avg = <T extends AnyNumber>(expression: Expression<T, boolean, any>
   new Expression<T, false, "avg">([new StringToken(`AVG`), new GroupToken(expression.toTokens())], "avg");
 
 export const sum = <T extends AnyNumber>(expression: Expression<T, boolean, any>) =>
-  new Expression<T, false, "sum">([new StringToken(`SUM`), new GroupToken(expression.toTokens())], "sum");
+  new Expression<bigint, false, "sum">([new StringToken(`SUM`), new GroupToken(expression.toTokens())], "sum");
 
 export const xmlagg = <DataType>(expression: Expression<DataType, boolean, any>) =>
   new Expression<number, false, "xmlagg">([new StringToken(`xmlagg`), new GroupToken(expression.toTokens())], "xmlagg");

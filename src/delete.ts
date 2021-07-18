@@ -14,7 +14,7 @@ export const makeDeleteFrom = (queryExecutor: QueryExecutorFn) => <T extends Tab
 ): T extends TableDefinition<any> ? never : DeleteQuery<T> => {
   return new DeleteQuery<T>(queryExecutor, [], table, "AFFECTED_COUNT", [
     new StringToken(`DELETE FROM`),
-    new StringToken((table as Table<any, any>).getName()),
+    new StringToken(wrapQuotes((table as Table<any, any>).getName())),
   ]) as any;
 };
 

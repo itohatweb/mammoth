@@ -79,6 +79,9 @@ export const defineDb = <TableDefinitions extends { [key: string]: TableDefiniti
         queryParts.push(`CREATE TABLE IF NOT EXISTS ${wrapQuotes(definition.name)}`);
 
         const columnParts: string[] = [];
+        const primaryKeys: string[] = [];
+
+        // const alterQueries: string[] = [];
 
         for (const {
           name,
@@ -89,16 +92,33 @@ export const defineDb = <TableDefinitions extends { [key: string]: TableDefiniti
           defaultExpression,
           enumValues,
         } of definition.columns) {
-          const column: string[] = [];
-          column.push(wrapQuotes(name), dataType);
-          if (isNotNull) column.push("NOT NULL");
-          if (isPrimaryKey) column.push("PRIMARY KEY");
-          if (isUnique) column.push("UNIQUE");
+          const meta: string[] = [];
+          if (isNotNull) meta.push("NOT NULL");
+          // if (isPrimaryKey) meta.push("PRIMARY KEY");
+          if (isPrimaryKey) primaryKeys.push(wrapQuotes(name));
+          if (isUnique) meta.push("UNIQUE");
           if (defaultExpression !== undefined) {
-            column.push(`DEFAULT ${defaultExpression}`);
+            meta.push(`DEFAULT ${defaultExpression}`);
           }
-          columnParts.push(column.join(" "));
 
+          columnParts.push(meta.join(" "));
+
+          // alterQueries.push(`
+          // DO
+          // $do$
+          // BEGIN
+          //   IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='${
+          //     definition.name
+          //   }' AND column_name='${name}') THEN
+          //     SELECT * FROM ${wrapQuotes(definition.name)};
+          //   ELSE
+          //     ALTER TABLE ${wrapQuotes(definition.name)} ADD ${wrapQuotes(name)} ${dataType} ${meta.join(" ")}
+          //   END IF;
+          // END
+          // $do$;
+          // `);
+
+          // CREATE ENUM TYPE IF IT EXISTS
           if (enumValues !== undefined) {
             // RENAME THE EXISTING ENUM SO THE NAME OF THE NEW ENUM DOES NOT CONFLICT WITH
             let enumQuery = `
@@ -126,6 +146,8 @@ export const defineDb = <TableDefinitions extends { [key: string]: TableDefiniti
             await queryExecutor(enumQuery, []);
           }
         }
+
+        columnParts.push(`PRIMARY KEY (${primaryKeys.join(", ")})`);
 
         queryParts.push(`( ${columnParts.join(", ")} );`);
 

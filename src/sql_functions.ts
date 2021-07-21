@@ -1,5 +1,13 @@
 import { AnyNumber, Int8, Numeric } from "./data_types.ts";
-import { CollectionToken, EmptyToken, GroupToken, ParameterToken, SeparatorToken, StringToken } from "./tokens/mod.ts";
+import {
+  CollectionToken,
+  createQueryState,
+  EmptyToken,
+  GroupToken,
+  ParameterToken,
+  SeparatorToken,
+  StringToken,
+} from "./tokens/mod.ts";
 import { DefaultExpression, Expression } from "./expression.ts";
 
 import { ColumnSet } from "./column.ts";
@@ -205,3 +213,12 @@ export const coalesce = <DataType>(...expressions: (Expression<DataType, boolean
     "coalesce"
   );
 };
+
+export function toSql(query: Query<any>) {
+  const queryState = createQueryState(query.toTokens());
+
+  return {
+    text: queryState.text.join(` `),
+    parameters: queryState.parameters,
+  };
+}
